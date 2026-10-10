@@ -3,8 +3,10 @@ import Link from "next/link";
 import { getServerSession } from "next-auth";
 
 import AccountActions from "@/components/auth/AccountActions";
+import QuickAddToBag from "@/components/products/QuickAddToBag";
 import { authOptions } from "@/pages/api/auth/[...nextauth]";
 import { productUseCases } from "@/server/use-cases/ProductUseCases";
+import CartBagLink from "@/components/cart/CartBagLink";
 
 export const dynamic = "force-dynamic";
 
@@ -46,22 +48,18 @@ export default async function Home() {
             <Link href="/" className="hover:text-[#9A7545]">
               Home
             </Link>
-
             <Link href="/products" className="hover:text-[#9A7545]">
               Shop All
             </Link>
-
             <Link href="/categories" className="hover:text-[#9A7545]">
               Collections
             </Link>
-
             <Link href="/about" className="hover:text-[#9A7545]">
               Our Story
             </Link>
           </nav>
 
           <div className="flex items-center gap-4 text-sm">
-            
             {session?.user ? (
               <AccountActions />
             ) : (
@@ -72,13 +70,7 @@ export default async function Home() {
                 Account
               </Link>
             )}
-
-            <Link
-              href="/cart"
-              className="rounded-full border border-[#3A1A1B]/20 px-4 py-2 transition hover:bg-[#3A1A1B] hover:text-[#FFF9F0]"
-            >
-              Bag (0)
-            </Link>
+            <CartBagLink />
           </div>
         </div>
       </header>
@@ -150,7 +142,6 @@ export default async function Home() {
               <p className="text-xs uppercase tracking-[0.2em] text-[#967344]">
                 The signature collection
               </p>
-
               <p className="mt-1 font-serif text-xl text-[#3A1A1B]">
                 Elegance in every detail
               </p>
@@ -167,7 +158,6 @@ export default async function Home() {
               <p className="text-xs uppercase tracking-[0.25em] text-[#967344]">
                 Handpicked for you
               </p>
-
               <h2 className="mt-3 font-serif text-4xl text-[#3A1A1B] sm:text-5xl">
                 The collection
               </h2>
@@ -186,7 +176,6 @@ export default async function Home() {
               <h3 className="font-serif text-3xl text-[#3A1A1B]">
                 Our collection is coming soon
               </h3>
-
               <p className="mx-auto mt-4 max-w-md text-sm leading-6 text-[#806D60]">
                 New jewelry pieces will appear here as they are added to the
                 Aura of Shree collection.
@@ -198,8 +187,12 @@ export default async function Home() {
                 const imageUrl = product.images?.[0]?.url;
 
                 return (
-                  <article key={product.slug} className="group">
-                    <Link href={`/products/${product.slug}`}>
+                  <article key={product.slug} className="group min-w-0">
+                    <Link
+                      href={`/products/${product.slug}`}
+                      aria-label={`View ${product.name}`}
+                      className="block"
+                    >
                       <div className="relative h-[220px] overflow-hidden bg-[#F5EBDD] sm:h-[320px]">
                         <span className="absolute left-3 top-3 z-10 bg-[#3A1A1B] px-3 py-1.5 text-[10px] uppercase tracking-wider text-white">
                           Collection
@@ -224,7 +217,9 @@ export default async function Home() {
 
                     <div className="pt-4">
                       <h3 className="font-serif text-lg text-[#3A1A1B] sm:text-xl">
-                        {product.name}
+                        <Link href={`/products/${product.slug}`}>
+                          {product.name}
+                        </Link>
                       </h3>
 
                       <p className="mt-2 text-sm font-medium text-[#3A1A1B]">
@@ -238,6 +233,17 @@ export default async function Home() {
                           Out of stock
                         </p>
                       )}
+
+                      <QuickAddToBag
+                        product={{
+                          id: String(product._id),
+                          slug: product.slug,
+                          name: product.name,
+                          price: product.price,
+                          image: imageUrl ?? "",
+                          stock: product.stock,
+                        }}
+                      />
                     </div>
                   </article>
                 );
@@ -293,11 +299,9 @@ export default async function Home() {
         <p className="text-xs uppercase tracking-[0.25em] text-[#967344]">
           A note from us
         </p>
-
         <h2 className="mt-4 font-serif text-3xl text-[#3A1A1B] sm:text-4xl">
           A little love, delivered.
         </h2>
-
         <p className="mx-auto mt-4 max-w-md text-sm leading-6 text-[#806D60]">
           Discover new arrivals, special collections, and little moments of
           inspiration from Aura of Shree.
@@ -311,7 +315,6 @@ export default async function Home() {
             <Link href="/" className="font-serif text-2xl tracking-wider">
               AURA OF SHREE
             </Link>
-
             <p className="mt-4 max-w-xs text-sm leading-6 text-[#D7C4B3]">
               Jewelry that celebrates your individuality and your moments.
             </p>
@@ -319,7 +322,6 @@ export default async function Home() {
 
           <div>
             <h3 className="text-sm font-semibold">Explore</h3>
-
             <div className="mt-4 flex flex-col gap-3 text-sm text-[#D7C4B3]">
               <Link href="/products">Shop All</Link>
               <Link href="/categories">Collections</Link>
@@ -329,7 +331,6 @@ export default async function Home() {
 
           <div>
             <h3 className="text-sm font-semibold">Customer Care</h3>
-
             <div className="mt-4 flex flex-col gap-3 text-sm text-[#D7C4B3]">
               <Link href="/contact">Contact Us</Link>
               <Link href="/shipping">Shipping & Returns</Link>
@@ -339,7 +340,6 @@ export default async function Home() {
 
           <div>
             <h3 className="text-sm font-semibold">Stay Connected</h3>
-
             <p className="mt-4 text-sm leading-6 text-[#D7C4B3]">
               Follow our journey and discover your next favorite piece.
             </p>

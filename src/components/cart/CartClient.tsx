@@ -138,7 +138,7 @@ export default function CartClient() {
             <div className="space-y-6">
               {cart.map((item) => (
                 <article
-                  key={item.productId}
+                  key={item.productId}  
                   className="flex gap-4 border-b border-[#3A1A1B]/10 pb-6 sm:gap-6"
                 >
                   <Link

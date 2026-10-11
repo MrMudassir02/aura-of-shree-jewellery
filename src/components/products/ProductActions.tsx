@@ -26,31 +26,69 @@ type CartItem = {
 
 const CART_KEY = "aura-cart-v1";
 
+function isCartItem(value: unknown): value is CartItem {
+  if (typeof value !== "object" || value === null) return false;
+
+  const item = value as Record<string, unknown>;
+
+  return (
+    typeof item.productId === "string" &&
+    typeof item.slug === "string" &&
+    typeof item.name === "string" &&
+    typeof item.price === "number" &&
+    Number.isFinite(item.price) &&
+    typeof item.image === "string" &&
+    typeof item.quantity === "number" &&
+    Number.isInteger(item.quantity) &&
+    item.quantity > 0 &&
+    typeof item.stock === "number" &&
+    Number.isInteger(item.stock) &&
+    item.stock >= 0
+  );
+}
+
 export default function ProductActions({ product }: ProductActionsProps) {
   const router = useRouter();
   const [quantity, setQuantity] = useState(1);
   const [message, setMessage] = useState("");
 
-  const isOutOfStock = product.stock <= 0;
+  const stock = Math.max(0, Math.floor(product.stock));
+  const isOutOfStock = stock <= 0;
 
   function addToCart(redirectToCart = false) {
-    if (isOutOfStock) return;
+    if (isOutOfStock) {
+      setMessage("This item is currently out of stock.");
+      return;
+    }
 
     try {
-      const storedCart = localStorage.getItem(CART_KEY);
-      const cart: CartItem[] = storedCart ? JSON.parse(storedCart) : [];
+      const stored = localStorage.getItem(CART_KEY);
+      const parsed: unknown = stored ? JSON.parse(stored) : [];
 
+      if (!Array.isArray(parsed) || !parsed.every(isCartItem)) {
+        setMessage(
+          "Your saved bag could not be read. Please clear the invalid bag and try again.",
+        );
+        return;
+      }
+
+      const cart: CartItem[] = [...parsed];
       const existingItem = cart.find((item) => item.productId === product.id);
 
       if (existingItem) {
         const updatedQuantity = existingItem.quantity + quantity;
 
-        if (updatedQuantity > product.stock) {
-          setMessage(`Only ${product.stock} units are currently available.`);
+        if (updatedQuantity > stock) {
+          setMessage(`Only ${stock} unit(s) are currently available.`);
           return;
         }
 
         existingItem.quantity = updatedQuantity;
+        existingItem.stock = stock;
+        existingItem.price = product.price;
+        existingItem.name = product.name;
+        existingItem.slug = product.slug;
+        existingItem.image = product.image;
       } else {
         cart.push({
           productId: product.id,
@@ -59,12 +97,11 @@ export default function ProductActions({ product }: ProductActionsProps) {
           price: product.price,
           image: product.image,
           quantity,
-          stock:product.stock,
+          stock,
         });
       }
 
       localStorage.setItem(CART_KEY, JSON.stringify(cart));
-
       window.dispatchEvent(new Event("cart-updated"));
 
       if (redirectToCart) {
@@ -80,7 +117,6 @@ export default function ProductActions({ product }: ProductActionsProps) {
 
   return (
     <div className="mt-8 space-y-5">
-      {/* Quantity selector */}
       <div>
         <p className="mb-3 text-sm font-medium text-[#3A1A1B]">Quantity</p>
 
@@ -89,7 +125,7 @@ export default function ProductActions({ product }: ProductActionsProps) {
             type="button"
             aria-label="Decrease quantity"
             disabled={quantity <= 1}
-            onClick={() => setQuantity((current) => current - 1)}
+            onClick={() => setQuantity((current) => Math.max(1, current - 1))}
             className="px-5 py-3 text-lg text-[#3A1A1B] disabled:opacity-30"
           >
             −
@@ -100,9 +136,9 @@ export default function ProductActions({ product }: ProductActionsProps) {
           <button
             type="button"
             aria-label="Increase quantity"
-            disabled={quantity >= product.stock}
+            disabled={quantity >= stock}
             onClick={() =>
-              setQuantity((current) => Math.min(current + 1, product.stock))
+              setQuantity((current) => Math.min(current + 1, stock))
             }
             className="px-5 py-3 text-lg text-[#3A1A1B] disabled:opacity-30"
           >
@@ -111,7 +147,6 @@ export default function ProductActions({ product }: ProductActionsProps) {
         </div>
       </div>
 
-      {/* Action buttons */}
       <div className="grid gap-3 sm:grid-cols-2">
         <button
           type="button"

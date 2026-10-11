@@ -1,12 +1,25 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-
-import { authUseCases } from "@/server/use-cases/AuthUseCases";
 import type { NextAuthOptions } from "next-auth";
 
+import { checkRateLimit } from "@/lib/rate-limit";
+import { authUseCases } from "@/server/use-cases/AuthUseCases";
+
+const authSecret = process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET;
+
 export const authOptions: NextAuthOptions = {
+  secret: authSecret,
+
+  // NextAuth applies its secure cookie defaults in production.
+  useSecureCookies: process.env.NODE_ENV === "production",
+
   session: {
     strategy: "jwt",
+    maxAge: 8 * 60 * 60,
+  },
+
+  jwt: {
+    maxAge: 8 * 60 * 60,
   },
 
   providers: [
@@ -29,8 +42,21 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
+        const normalizedEmail = credentials.email.trim().toLowerCase();
+
+        // Persistent MongoDB-backed limit: 5 attempts per email per 15 minutes.
+        const rateLimit = await checkRateLimit(
+          `login:${normalizedEmail}`,
+          5,
+          15 * 60 * 1000,
+        );
+
+        if (!rateLimit.allowed) {
+          return null;
+        }
+
         const user = await authUseCases.validateCredentials(
-          credentials.email,
+          normalizedEmail,
           credentials.password,
         );
 
@@ -69,4 +95,5 @@ export const authOptions: NextAuthOptions = {
     signIn: "/login",
   },
 };
+
 export default NextAuth(authOptions);

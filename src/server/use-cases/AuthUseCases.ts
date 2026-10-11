@@ -38,7 +38,9 @@ export class AuthUseCases {
   }
 
   async validateCredentials(email: string, password: string) {
-    const user = await userRepository.findByEmailWithPassword(email);
+    const user = await userRepository.findByEmailWithPassword(
+      email.trim().toLowerCase(),
+    );
 
     if (!user || !user.isActive || !user.isEmailVerified) {
       return null;
@@ -68,9 +70,7 @@ export class AuthUseCases {
     await otpRepository.deleteActive(normalizedEmail, purpose);
 
     const otp = randomInt(100000, 1000000).toString();
-
     const codeHash = await bcrypt.hash(otp, 10);
-
     const expiresAt = new Date(Date.now() + OTP_EXPIRY_MINUTES * 60 * 1000);
 
     await otpRepository.create({
@@ -91,7 +91,6 @@ export class AuthUseCases {
 
   async requestEmailVerificationOtp(email: string) {
     const normalizedEmail = email.trim().toLowerCase();
-
     const user = await userRepository.findByEmail(normalizedEmail);
 
     if (!user || user.isEmailVerified || !user.isActive) {
@@ -103,7 +102,6 @@ export class AuthUseCases {
 
   async generatePasswordResetOtp(email: string) {
     const normalizedEmail = email.trim().toLowerCase();
-
     const user = await userRepository.findByEmail(normalizedEmail);
 
     if (!user || !user.isActive) {
@@ -121,19 +119,28 @@ export class AuthUseCases {
       "email_verification",
     );
 
-    if (!record || record.attempts >= MAX_OTP_ATTEMPTS) {
+    if (!record) {
       return false;
     }
 
-    const matches = await bcrypt.compare(otp, record.codeHash);
+    // Atomic attempt reservation prevents concurrent requests exceeding 5 tries.
+    const attempt = await otpRepository.incrementAttemptsIfAllowed(
+      record._id.toString(),
+      MAX_OTP_ATTEMPTS,
+    );
+
+    if (!attempt) {
+      return false;
+    }
+
+    const matches = await bcrypt.compare(otp, attempt.codeHash);
 
     if (!matches) {
-      await otpRepository.incrementAttempts(record._id.toString());
-
       return false;
     }
 
-    const consumed = await otpRepository.consume(record._id.toString());
+    // Only one concurrent request can consume this OTP.
+    const consumed = await otpRepository.consume(attempt._id.toString());
 
     if (!consumed) {
       return false;
@@ -141,7 +148,7 @@ export class AuthUseCases {
 
     const user = await userRepository.findByEmail(normalizedEmail);
 
-    if (!user) {
+    if (!user || !user.isActive) {
       return false;
     }
 
@@ -158,19 +165,20 @@ export class AuthUseCases {
       "password_reset",
     );
 
-    if (!record || record.attempts >= MAX_OTP_ATTEMPTS) {
+    if (!record) {
       return false;
     }
 
-    const matches = await bcrypt.compare(otp, record.codeHash);
+    const attempt = await otpRepository.incrementAttemptsIfAllowed(
+      record._id.toString(),
+      MAX_OTP_ATTEMPTS,
+    );
 
-    if (!matches) {
-      await otpRepository.incrementAttempts(record._id.toString());
-
+    if (!attempt) {
       return false;
     }
 
-    return true;
+    return bcrypt.compare(otp, attempt.codeHash);
   }
 
   async resetPassword(email: string, otp: string, newPassword: string) {
@@ -181,15 +189,22 @@ export class AuthUseCases {
       "password_reset",
     );
 
-    if (!record || record.attempts >= MAX_OTP_ATTEMPTS) {
+    if (!record) {
       return false;
     }
 
-    const matches = await bcrypt.compare(otp, record.codeHash);
+    const attempt = await otpRepository.incrementAttemptsIfAllowed(
+      record._id.toString(),
+      MAX_OTP_ATTEMPTS,
+    );
+
+    if (!attempt) {
+      return false;
+    }
+
+    const matches = await bcrypt.compare(otp, attempt.codeHash);
 
     if (!matches) {
-      await otpRepository.incrementAttempts(record._id.toString());
-
       return false;
     }
 
@@ -199,14 +214,14 @@ export class AuthUseCases {
       return false;
     }
 
-    
-    const consumed = await otpRepository.consume(record._id.toString());
+    const passwordHash = await bcrypt.hash(newPassword, 12);
+
+    // The OTP must be consumed before this reset can proceed.
+    const consumed = await otpRepository.consume(attempt._id.toString());
 
     if (!consumed) {
       return false;
     }
-
-    const passwordHash = await bcrypt.hash(newPassword, 12);
 
     await userRepository.updateById(user._id.toString(), {
       password: passwordHash,

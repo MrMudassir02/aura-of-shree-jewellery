@@ -2,8 +2,14 @@ import { connectDB } from "@/lib/mongodb";
 import { Otp, type OtpDocument } from "@/server/models/Otp";
 import type { Types } from "mongoose";
 
+type OtpPurpose = OtpDocument["purpose"];
+
+type OtpRecord = OtpDocument & {
+  _id: Types.ObjectId;
+};
+
 export class OtpRepository {
-  async findActive(email: string, purpose: OtpDocument["purpose"]) {
+  async findActive(email: string, purpose: OtpPurpose) {
     await connectDB();
 
     return Otp.findOne({
@@ -13,7 +19,7 @@ export class OtpRepository {
       expiresAt: { $gt: new Date() },
     })
       .sort({ createdAt: -1 })
-      .lean<(OtpDocument & { _id: Types.ObjectId }) | null>();
+      .lean<OtpRecord | null>();
   }
 
   async create(data: Partial<OtpDocument>) {
@@ -24,14 +30,23 @@ export class OtpRepository {
     return otp.toObject();
   }
 
-  async incrementAttempts(id: string) {
+  async incrementAttemptsIfAllowed(id: string, maxAttempts: number) {
     await connectDB();
 
-    return Otp.findByIdAndUpdate(
-      id,
-      { $inc: { attempts: 1 } },
-      { new: true },
-    ).lean<(OtpDocument & { _id: Types.ObjectId }) | null>();
+    return Otp.findOneAndUpdate(
+      {
+        _id: id,
+        consumedAt: null,
+        expiresAt: { $gt: new Date() },
+        attempts: { $lt: maxAttempts },
+      },
+      {
+        $inc: { attempts: 1 },
+      },
+      {
+        new: true,
+      },
+    ).lean<OtpRecord | null>();
   }
 
   async consume(id: string) {
@@ -51,10 +66,10 @@ export class OtpRepository {
       {
         new: true,
       },
-    ).lean<(OtpDocument & { _id: Types.ObjectId }) | null>();
+    ).lean<OtpRecord | null>();
   }
 
-  async deleteActive(email: string, purpose: OtpDocument["purpose"]) {
+  async deleteActive(email: string, purpose: OtpPurpose) {
     await connectDB();
 
     return Otp.deleteMany({

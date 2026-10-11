@@ -1,14 +1,26 @@
 import { NextResponse } from "next/server";
 
-import { authUseCases } from "@/server/use-cases/AuthUseCases";
-import { registerSchema } from "@/server/validators/auth";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { sendOtpEmail } from "@/lib/email";
+import { authUseCases } from "@/server/use-cases/AuthUseCases";
+import { registerSchema } from "@/server/validators/auth";
+
+const REGISTRATION_MESSAGE =
+  "If this email can be registered, check your inbox for the next steps.";
+
+function registrationResponse() {
+  return NextResponse.json(
+    {
+      success: true,
+      message: REGISTRATION_MESSAGE,
+    },
+    { status: 202 },
+  );
+}
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-
     const parsed = registerSchema.safeParse(body);
 
     if (!parsed.success) {
@@ -22,6 +34,7 @@ export async function POST(request: Request) {
     }
 
     const { name, email, password } = parsed.data;
+
     const rateLimit = await checkRateLimit(
       `register:${email}`,
       3,
@@ -43,41 +56,38 @@ export async function POST(request: Request) {
       );
     }
 
-    const user = await authUseCases.register({
-      name,
-      email,
-      password,
-    });
+    try {
+      await authUseCases.register({
+        name,
+        email,
+        password,
+      });
+    } catch (error) {
+      if (error instanceof Error && error.message === "EMAIL_ALREADY_EXISTS") {
+        // Help an existing, unverified account without confirming its existence.
+        const otp = await authUseCases.requestEmailVerificationOtp(email);
 
-    const otp = await authUseCases.generateEmailVerificationOtp(email);
+        if (otp) {
+          await sendOtpEmail(email, otp, "email_verification");
+        }
 
-    await sendOtpEmail(email, otp, "email_verification");
+        return registrationResponse();
+      }
 
-    return NextResponse.json(
-      {
-        success: true,
-        message: "Account created. Please verify your email using the OTP.",
-        user,
-      },
-      { status: 201 },
-    );
-  } catch (error) {
-    if (error instanceof Error && error.message === "EMAIL_ALREADY_EXISTS") {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "Unable to create account",
-        },
-        { status: 400 },
-      );
+      throw error;
     }
 
+    const otp = await authUseCases.generateEmailVerificationOtp(email);
+    await sendOtpEmail(email, otp, "email_verification");
+
+    return registrationResponse();
+  } catch (error) {
     console.error("Registration error:", error);
 
     return NextResponse.json(
       {
         success: false,
-        message: "Unable to create account",
+        message: "Unable to process registration right now.",
       },
       { status: 500 },
     );

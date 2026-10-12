@@ -2,11 +2,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { getServerSession } from "next-auth";
 
-import AccountActions from "@/components/auth/AccountActions";
-import QuickAddToBag from "@/components/products/QuickAddToBag";
+import SiteNavigation from "@/components/navigation/SiteNavigation";
+import FeaturedProductCard from "@/components/products/FeaturedProductCard";
 import { authOptions } from "@/pages/api/auth/[...nextauth]";
 import { productUseCases } from "@/server/use-cases/ProductUseCases";
-import CartBagLink from "@/components/cart/CartBagLink";
 
 export const dynamic = "force-dynamic";
 
@@ -17,63 +16,14 @@ export default async function Home() {
     limit: 4,
   });
 
-  const formatPrice = (price: number) =>
-    new Intl.NumberFormat("en-IN", {
-      style: "currency",
-      currency: "INR",
-      maximumFractionDigits: 0,
-    }).format(price);
-
   return (
     <main className="min-h-screen bg-[#F5EBDD] text-[#2B2020]">
       {/* Announcement */}
-      <div className="bg-[#3A1A1B] px-4 py-2 text-center text-xs tracking-[0.12em] text-[#F5EBDD]">
+      <div className="bg-[#F5EBDD] px-4 py-2.5 text-center text-[10px] tracking-[0.2em] text-[#3A1A1B] sm:text-xs">
         A LITTLE LUXURY, MADE FOR YOU
       </div>
 
-      {/* Navigation */}
-      <header className="sticky top-0 z-50 border-b border-[#3A1A1B]/10 bg-[#F5EBDD]/95 backdrop-blur-md">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-5 lg:px-10">
-          <Link
-            href="/"
-            className="text-xl font-semibold tracking-[0.12em] text-[#3A1A1B] sm:text-2xl"
-          >
-            AURA <span className="font-light">OF SHREE</span>
-            <span className="mt-1 block text-center text-[9px] tracking-[0.42em]">
-              JEWELLERY
-            </span>
-          </Link>
-
-          <nav className="hidden items-center gap-8 text-sm md:flex">
-            <Link href="/" className="hover:text-[#9A7545]">
-              Home
-            </Link>
-            <Link href="/products" className="hover:text-[#9A7545]">
-              Shop All
-            </Link>
-            <Link href="/categories" className="hover:text-[#9A7545]">
-              Collections
-            </Link>
-            <Link href="/about" className="hover:text-[#9A7545]">
-              Our Story
-            </Link>
-          </nav>
-
-          <div className="flex items-center gap-4 text-sm">
-            {session?.user ? (
-              <AccountActions />
-            ) : (
-              <Link
-                href="/login"
-                className="hidden text-sm transition hover:text-[#9A7545] sm:inline"
-              >
-                Account
-              </Link>
-            )}
-            <CartBagLink />
-          </div>
-        </div>
-      </header>
+      <SiteNavigation isLoggedIn={Boolean(session?.user)} />
 
       {/* Hero */}
       <section className="mx-auto grid max-w-7xl items-center gap-10 px-5 py-12 sm:py-16 lg:grid-cols-2 lg:px-10 lg:py-20">
@@ -150,7 +100,7 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Featured / Latest Products */}
+      {/* Featured Products */}
       <section className="bg-[#FFF9F0] px-5 py-16 lg:px-10 lg:py-20">
         <div className="mx-auto max-w-7xl">
           <div className="mb-10 flex flex-wrap items-end justify-between gap-4">
@@ -165,7 +115,7 @@ export default async function Home() {
 
             <Link
               href="/products"
-              className="text-sm text-[#3A1A1B] underline underline-offset-4"
+              className="text-sm text-[#3A1A1B] underline underline-offset-4 transition hover:text-[#967344]"
             >
               Shop all jewelry →
             </Link>
@@ -182,72 +132,20 @@ export default async function Home() {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
-              {products.map((product) => {
-                const imageUrl = product.images?.[0]?.url;
-
-                return (
-                  <article key={product.slug} className="group min-w-0">
-                    <Link
-                      href={`/products/${product.slug}`}
-                      aria-label={`View ${product.name}`}
-                      className="block"
-                    >
-                      <div className="relative h-[220px] overflow-hidden bg-[#F5EBDD] sm:h-[320px]">
-                        <span className="absolute left-3 top-3 z-10 bg-[#3A1A1B] px-3 py-1.5 text-[10px] uppercase tracking-wider text-white">
-                          Collection
-                        </span>
-
-                        {imageUrl ? (
-                          <Image
-                            src={imageUrl}
-                            alt={product.name}
-                            fill
-                            unoptimized
-                            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                            className="object-cover transition duration-700 group-hover:scale-105"
-                          />
-                        ) : (
-                          <div className="flex h-full items-center justify-center text-sm text-[#806D60]">
-                            Image coming soon
-                          </div>
-                        )}
-                      </div>
-                    </Link>
-
-                    <div className="pt-4">
-                      <h3 className="font-serif text-lg text-[#3A1A1B] sm:text-xl">
-                        <Link href={`/products/${product.slug}`}>
-                          {product.name}
-                        </Link>
-                      </h3>
-
-                      <p className="mt-2 text-sm font-medium text-[#3A1A1B]">
-                        {formatPrice(product.price)}
-                      </p>
-
-                      {product.stock > 0 ? (
-                        <p className="mt-2 text-xs text-[#806D60]">In stock</p>
-                      ) : (
-                        <p className="mt-2 text-xs text-red-800">
-                          Out of stock
-                        </p>
-                      )}
-
-                      <QuickAddToBag
-                        product={{
-                          id: String(product._id),
-                          slug: product.slug,
-                          name: product.name,
-                          price: product.price,
-                          image: imageUrl ?? "",
-                          stock: product.stock,
-                        }}
-                      />
-                    </div>
-                  </article>
-                );
-              })}
+            <div className="grid grid-cols-2 gap-x-4 gap-y-9 sm:gap-x-6 sm:gap-y-12 lg:grid-cols-4">
+              {products.map((product) => (
+                <FeaturedProductCard
+                  key={product.slug}
+                  product={{
+                    id: String(product._id),
+                    slug: product.slug,
+                    name: product.name,
+                    price: product.price,
+                    stock: product.stock,
+                    images: (product.images ?? []).map((image) => image.url),
+                  }}
+                />
+              ))}
             </div>
           )}
         </div>
@@ -323,18 +221,39 @@ export default async function Home() {
           <div>
             <h3 className="text-sm font-semibold">Explore</h3>
             <div className="mt-4 flex flex-col gap-3 text-sm text-[#D7C4B3]">
-              <Link href="/products">Shop All</Link>
-              <Link href="/categories">Collections</Link>
-              <Link href="/about">Our Story</Link>
+              <Link
+                href="/products"
+                className="transition hover:text-[#F5EBDD]"
+              >
+                Shop All
+              </Link>
+              <Link
+                href="/categories"
+                className="transition hover:text-[#F5EBDD]"
+              >
+                Collections
+              </Link>
+              <Link href="/about" className="transition hover:text-[#F5EBDD]">
+                Our Story
+              </Link>
             </div>
           </div>
 
           <div>
             <h3 className="text-sm font-semibold">Customer Care</h3>
             <div className="mt-4 flex flex-col gap-3 text-sm text-[#D7C4B3]">
-              <Link href="/contact">Contact Us</Link>
-              <Link href="/shipping">Shipping & Returns</Link>
-              <Link href="/privacy">Privacy Policy</Link>
+              <Link href="/contact" className="transition hover:text-[#F5EBDD]">
+                Contact Us
+              </Link>
+              <Link
+                href="/shipping"
+                className="transition hover:text-[#F5EBDD]"
+              >
+                Shipping &amp; Returns
+              </Link>
+              <Link href="/privacy" className="transition hover:text-[#F5EBDD]">
+                Privacy Policy
+              </Link>
             </div>
           </div>
 

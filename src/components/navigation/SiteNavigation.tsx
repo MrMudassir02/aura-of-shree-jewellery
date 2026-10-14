@@ -34,14 +34,20 @@ export default function SiteNavigation({
 
   const closeMenu = () => setMenuOpen(false);
 
+  const navLinkClass =
+    "rounded-sm px-4 py-3 text-sm normal-case tracking-normal text-[#F5EBDD] transition-colors duration-200 hover:bg-[#F5EBDD] hover:text-[#3A1A1B] focus-visible:bg-[#F5EBDD] focus-visible:text-[#3A1A1B] focus-visible:outline-none";
+
+  const categoryLinkClass =
+    "shrink-0 rounded-sm px-3 py-2 text-[10px] uppercase tracking-[0.16em] text-[#F5EBDD] transition-colors duration-200 hover:bg-[#F5EBDD] hover:text-[#3A1A1B] focus-visible:bg-[#F5EBDD] focus-visible:text-[#3A1A1B] focus-visible:outline-none sm:text-xs";
+
   return (
-    <header className="sticky top-0 z-50 border-b border-[#D4B77E]/30 bg-[#FFF9F0] text-[#3A1A1B] shadow-sm">
-      <div className="mx-auto flex min-h-[76px] max-w-[1440px] items-center justify-between gap-3 px-4 sm:px-6 lg:px-10">
+    <header className="sticky top-0 z-50 border-b border-white/10 bg-[#3A1A1B] text-[#F5EBDD] shadow-sm">
+      <div className="mx-auto flex min-h-[80px] max-w-[1440px] items-center justify-between gap-4 px-4 sm:px-6 lg:px-10">
         <Link
           href="/"
           onClick={closeMenu}
           aria-label="Aura of Shree Jewellery home"
-          className="shrink-0 text-lg font-semibold tracking-[0.08em] sm:text-2xl"
+          className="shrink-0 text-lg font-semibold tracking-[0.08em] text-[#F5EBDD] sm:text-2xl"
         >
           AURA <span className="font-light">OF SHREE</span>
           <span className="mt-1 block text-center text-[8px] tracking-[0.42em] sm:text-[9px]">
@@ -52,35 +58,31 @@ export default function SiteNavigation({
         {!minimal && (
           <nav
             aria-label="Main navigation"
-            className="hidden items-center gap-1 xl:flex"
+            className="hidden items-center gap-1 lg:flex"
           >
             {links.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="px-3 py-3 text-xs uppercase tracking-[0.12em] transition hover:text-[#A8752A] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#A8752A]"
-              >
+              <Link key={link.href} href={link.href} className={navLinkClass}>
                 {link.label}
               </Link>
             ))}
           </nav>
         )}
 
-        <div className="flex items-center gap-2 sm:gap-4">
+        <div className="flex shrink-0 items-center gap-3 sm:gap-5">
           {isLoggedIn ? (
             <button
               type="button"
               onClick={() => void signOut({ callbackUrl: "/" })}
-              className="hidden px-2 py-2 text-xs uppercase tracking-wider hover:text-[#A8752A] sm:block"
+              className="hidden rounded-sm border border-[#D4B77E]/60 px-4 py-2 text-sm transition-colors duration-200 hover:bg-[#F5EBDD] hover:text-[#3A1A1B] sm:inline"
             >
               Sign out
             </button>
           ) : (
             <Link
               href="/login"
-              className="hidden px-2 py-2 text-xs uppercase tracking-wider hover:text-[#A8752A] sm:block"
+              className="hidden rounded-sm border border-[#D4B77E]/60 px-4 py-2 text-sm transition-colors duration-200 hover:bg-[#F5EBDD] hover:text-[#3A1A1B] sm:inline"
             >
-              Account
+              Sign in
             </Link>
           )}
 
@@ -93,7 +95,7 @@ export default function SiteNavigation({
               aria-expanded={menuOpen}
               aria-controls="mobile-navigation"
               onClick={() => setMenuOpen((open) => !open)}
-              className="inline-flex h-10 w-10 items-center justify-center border border-[#3A1A1B]/20 xl:hidden"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-sm border border-[#D4B77E]/50 transition-colors hover:bg-[#F5EBDD] hover:text-[#3A1A1B] lg:hidden"
             >
               {menuOpen ? (
                 <svg
@@ -123,16 +125,16 @@ export default function SiteNavigation({
         </div>
       </div>
 
-      <div className="border-t border-[#3A1A1B]/10">
+      <div className="border-t border-white/10">
         <nav
           aria-label="Jewellery categories"
-          className="mx-auto flex max-w-[1440px] items-center gap-6 overflow-x-auto px-4 py-3 sm:justify-center sm:gap-8 sm:px-6 lg:gap-12"
+          className="mx-auto flex max-w-[1440px] items-center gap-3 overflow-x-auto px-4 py-2 sm:justify-center sm:gap-5 sm:px-6 lg:gap-8"
         >
           {categories.map((category) => (
             <Link
               key={category.href}
               href={category.href}
-              className="shrink-0 text-[10px] uppercase tracking-[0.12em] transition hover:text-[#A8752A] sm:text-xs sm:tracking-[0.16em]"
+              className={categoryLinkClass}
             >
               {category.label}
             </Link>
@@ -144,7 +146,7 @@ export default function SiteNavigation({
         <nav
           id="mobile-navigation"
           aria-label="Mobile navigation"
-          className="border-t border-[#3A1A1B]/10 bg-[#FFF9F0] px-4 py-4 xl:hidden"
+          className="border-t border-white/10 bg-[#3A1A1B] px-4 py-4 lg:hidden"
         >
           <div className="mx-auto flex max-w-7xl flex-col">
             {links.map((link) => (
@@ -152,13 +154,13 @@ export default function SiteNavigation({
                 key={link.href}
                 href={link.href}
                 onClick={closeMenu}
-                className="border-b border-[#3A1A1B]/10 px-2 py-3 text-sm"
+                className="rounded-sm border-b border-white/10 px-4 py-3 text-sm transition-colors hover:bg-[#F5EBDD] hover:text-[#3A1A1B]"
               >
                 {link.label}
               </Link>
             ))}
 
-            <p className="px-2 pb-2 pt-5 text-[10px] uppercase tracking-[0.2em] text-[#967344]">
+            <p className="px-4 pb-2 pt-5 text-[10px] uppercase tracking-[0.2em] text-[#D4B77E]">
               Shop by category
             </p>
 
@@ -167,7 +169,7 @@ export default function SiteNavigation({
                 key={category.href}
                 href={category.href}
                 onClick={closeMenu}
-                className="px-2 py-3 text-sm"
+                className="rounded-sm px-4 py-3 text-sm transition-colors hover:bg-[#F5EBDD] hover:text-[#3A1A1B]"
               >
                 {category.label}
               </Link>
@@ -180,7 +182,7 @@ export default function SiteNavigation({
                   closeMenu();
                   void signOut({ callbackUrl: "/" });
                 }}
-                className="px-2 py-3 text-left text-sm"
+                className="px-4 py-3 text-left text-sm hover:text-[#D4B77E]"
               >
                 Sign out
               </button>
@@ -188,7 +190,7 @@ export default function SiteNavigation({
               <Link
                 href="/login"
                 onClick={closeMenu}
-                className="px-2 py-3 text-sm"
+                className="px-4 py-3 text-sm hover:text-[#D4B77E]"
               >
                 Sign in / Create account
               </Link>

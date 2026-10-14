@@ -1,113 +1,88 @@
 import { Types } from "mongoose";
-
 import { connectDB } from "@/lib/mongodb";
 import { Product, type ProductDocument } from "@/server/models/Product";
 
-type ProductImageInput = {
-  url: string;
-  publicId: string;
+type ProductImageInput = { url: string; publicId: string };
+type ProductCreateInput = Omit<Partial<ProductDocument>, "category" | "images"> & {
+  category: Types.ObjectId; images: ProductImageInput[];
 };
-
-type ProductCreateInput = Omit<
-  Partial<ProductDocument>,
-  "category" | "images"
-> & {
-  category: Types.ObjectId;
-  images: ProductImageInput[];
-};
-
-type ProductUpdateInput = Omit<
-  Partial<ProductDocument>,
-  "category" | "images"
-> & {
-  category?: Types.ObjectId;
-  images?: ProductImageInput[];
+type ProductUpdateInput = Omit<Partial<ProductDocument>, "category" | "images"> & {
+  category?: Types.ObjectId; images?: ProductImageInput[];
 };
 
 export class ProductRepository {
   async findById(id: string) {
     await connectDB();
-
     return Product.findById(id).lean<ProductDocument | null>();
   }
-  
 
   async findByIds(ids: string[]) {
     await connectDB();
-
-    return Product.find({
-      _id: { $in: ids },
-      isActive: true,
-    }).lean<ProductDocument[]>();
+    return Product.find({ _id: { $in: ids }, isActive: true, status: "ACTIVE" }).lean<ProductDocument[]>();
   }
-
 
   async findBySlug(slug: string) {
     await connectDB();
-
-    return Product.findOne({
-      slug,
-      isActive: true,
-    }).lean<ProductDocument | null>();
+    return Product.findOne({ slug, isActive: true, status: { $in: ["ACTIVE", null] } }).lean<ProductDocument | null>();
   }
 
-  async findMany(options?: {
-    category?: string;
-    featured?: boolean;
-    limit?: number;
-    skip?: number;
+  async findMany(options?: { category?: string; featured?: boolean; limit?: number; skip?: number }) {
+    await connectDB();
+    const filter: Record<string, unknown> = { isActive: true, status: { $in: ["ACTIVE", null] } };
+    if (options?.category) filter.category = options.category;
+    if (options?.featured !== undefined) filter.isFeatured = options.featured;
+    return Product.find(filter).sort({ createdAt: -1 }).skip(options?.skip ?? 0).limit(options?.limit ?? 20).lean<ProductDocument[]>();
+  }
+
+  async findAdminMany(options: {
+    search?: string; category?: string; status?: string; skip: number; limit: number;
   }) {
     await connectDB();
-
-    const filter: Record<string, unknown> = {
-      isActive: true,
-    };
-
-    if (options?.category) {
-      filter.category = options.category;
+    const filter: Record<string, unknown> = {};
+    if (options.category) filter.category = options.category;
+    if (options.status && options.status !== "ALL") filter.status = options.status;
+    if (options.search?.trim()) {
+      const safe = options.search.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      filter.$or = [{ name: { $regex: safe, $options: "i" } }, { sku: { $regex: safe, $options: "i" } }];
     }
-
-    if (options?.featured !== undefined) {
-      filter.isFeatured = options.featured;
-    }
-
-    return Product.find(filter)
-      .sort({ createdAt: -1 })
-      .skip(options?.skip ?? 0)
-      .limit(options?.limit ?? 20)
-      .lean<ProductDocument[]>();
+    const [products, total] = await Promise.all([
+      Product.find(filter).populate("category", "name slug").sort({ updatedAt: -1 }).skip(options.skip).limit(options.limit).lean(),
+      Product.countDocuments(filter),
+    ]);
+    return { products, total };
   }
 
   async create(data: ProductCreateInput) {
     await connectDB();
-
     const product = await Product.create(data);
-
     return product.toObject();
   }
 
   async updateById(id: string, data: ProductUpdateInput) {
     await connectDB();
+    const update = { ...data } as Record<string, unknown>;
+    if (update.status === "ACTIVE") update.isActive = true;
+    if (update.status === "DRAFT" || update.status === "ARCHIVED") update.isActive = false;
+    return Product.findByIdAndUpdate(id, update, { new: true, runValidators: true }).lean<ProductDocument | null>();
+  }
 
-    return Product.findByIdAndUpdate(id, data, {
-      new: true,
-      runValidators: true,
-    }).lean<ProductDocument | null>();
+  async setStatus(ids: string[], status: "ACTIVE" | "DRAFT" | "ARCHIVED") {
+    await connectDB();
+    return Product.updateMany(
+      { _id: { $in: ids } },
+      { $set: { status, isActive: status === "ACTIVE" } },
+      { runValidators: true },
+    );
+  }
+
+  async deleteMany(ids: string[]) {
+    await connectDB();
+    return Product.deleteMany({ _id: { $in: ids } });
   }
 
   async deleteById(id: string) {
     await connectDB();
-
-    return Product.findByIdAndUpdate(
-      id,
-      {
-        isActive: false,
-      },
-      {
-        new: true,
-      },
-    ).lean<ProductDocument | null>();
+    return Product.findByIdAndUpdate(id, { isActive: false, status: "ARCHIVED" }, { new: true }).lean<ProductDocument | null>();
   }
 }
-
 export const productRepository = new ProductRepository();

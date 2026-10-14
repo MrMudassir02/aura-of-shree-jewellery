@@ -24,7 +24,7 @@ export default async function EditProductPage({
 
   const product = await productUseCases.getProductById(id);
 
-  if (!product || !product.isActive) {
+  if (!product) {
     notFound();
   }
 

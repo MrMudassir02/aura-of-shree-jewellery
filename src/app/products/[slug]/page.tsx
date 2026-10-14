@@ -1,10 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { getServerSession } from "next-auth";
 
+import SiteNavigation from "@/components/navigation/SiteNavigation";
+import ProductActions from "@/components/products/ProductActions";
+import { authOptions } from "@/pages/api/auth/[...nextauth]";
 import { connectDB } from "@/lib/mongodb";
 import { Product } from "@/server/models/Product";
-import ProductActions from "@/components/products/ProductActions";
 
 export const dynamic = "force-dynamic";
 
@@ -13,7 +16,10 @@ type ProductPageProps = {
 };
 
 export default async function ProductDetailPage({ params }: ProductPageProps) {
-  const { slug } = await params;
+  const [{ slug }, session] = await Promise.all([
+    params,
+    getServerSession(authOptions),
+  ]);
 
   await connectDB();
 
@@ -22,9 +28,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     isActive: true,
   }).lean();
 
-  if (!product) {
-    notFound();
-  }
+  if (!product) notFound();
 
   const image = product.images[0]?.url;
 
@@ -37,29 +41,12 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
 
   return (
     <main className="min-h-screen bg-[#F5EBDD] text-[#2B2020]">
-      {/* Header */}
-      <header className="border-b border-[#3A1A1B]/10">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-5 lg:px-10">
-          <Link
-            href="/"
-            className="text-xl font-semibold tracking-[0.12em] text-[#3A1A1B] sm:text-2xl"
-          >
-            AURA <span className="font-light">OF SHREE</span>
-            <span className="mt-1 block text-center text-[9px] tracking-[0.42em]">
-              JEWELLERY
-            </span>
-          </Link>
+      <div className="bg-[#F5EBDD] px-4 py-2.5 text-center text-[10px] tracking-[0.2em] text-[#3A1A1B] sm:text-xs">
+        A LITTLE LUXURY, MADE FOR YOU
+      </div>
 
-          <Link
-            href="/cart"
-            className="rounded-full border border-[#3A1A1B]/20 px-4 py-2 text-sm transition hover:bg-[#3A1A1B] hover:text-[#FFF9F0]"
-          >
-            Bag
-          </Link>
-        </div>
-      </header>
+      <SiteNavigation isLoggedIn={Boolean(session?.user)} />
 
-      {/* Breadcrumb */}
       <div className="mx-auto max-w-7xl px-5 py-6 text-sm text-[#806D60] lg:px-10">
         <Link href="/" className="hover:text-[#3A1A1B]">
           Home
@@ -72,9 +59,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         <span className="text-[#3A1A1B]">{product.name}</span>
       </div>
 
-      {/* Product details */}
       <section className="mx-auto grid max-w-7xl gap-10 px-5 pb-20 lg:grid-cols-2 lg:gap-20 lg:px-10">
-        {/* Product image */}
         <div className="relative min-h-[350px] overflow-hidden bg-[#FFF9F0] sm:min-h-[550px]">
           {image ? (
             <Image
@@ -93,7 +78,6 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
           )}
         </div>
 
-        {/* Product information */}
         <div className="flex flex-col justify-center py-4 lg:py-10">
           <p className="text-xs uppercase tracking-[0.25em] text-[#967344]">
             Aura of Shree Collection

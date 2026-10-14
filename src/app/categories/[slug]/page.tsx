@@ -1,9 +1,9 @@
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getServerSession } from "next-auth";
 
 import SiteNavigation from "@/components/navigation/SiteNavigation";
+import FeaturedProductCard from "@/components/products/FeaturedProductCard";
 import { authOptions } from "@/pages/api/auth/[...nextauth]";
 import { categoryUseCases } from "@/server/use-cases/CategoryUseCases";
 import { productUseCases } from "@/server/use-cases/ProductUseCases";
@@ -28,125 +28,95 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
 
   const products = await productUseCases.getProducts({
     category: category._id.toString(),
-    limit: 6,
+    limit: 20,
   });
 
-  const formatPrice = (price: number) =>
-    new Intl.NumberFormat("en-IN", {
-      style: "currency",
-      currency: "INR",
-      maximumFractionDigits: 0,
-    }).format(price);
-
   return (
-    <>
-      <SiteNavigation isLoggedIn={Boolean(session?.user)} />
+    <div className="min-h-screen bg-[#FAF7F2] text-[#2B1519]">
+      <div className="bg-[#6B1D2F] px-4 py-2 text-center text-[10px] font-semibold tracking-[0.2em] text-[#FAF7F2] sm:text-xs">
+        ✨ 100% BIS HALLMARKED 22K GOLD &amp; IGI CERTIFIED DIAMONDS | FREE INSURED DELIVERY
+      </div>
 
-      <main className="min-h-screen bg-[#FFF9F0] text-[#2B2020]">
-        <section className="mx-auto max-w-[1440px] px-4 py-10 sm:px-8 sm:py-14 lg:px-12">
-          <Link
-            href="/categories"
-            className="text-xs uppercase tracking-[0.14em] text-[#806D60] transition hover:text-[#A8752A]"
-          >
-            ← All collections
-          </Link>
+      <SiteNavigation
+        isLoggedIn={Boolean(session?.user)}
+        user={session?.user}
+      />
 
-          <div className="mt-8 flex flex-wrap items-end justify-between gap-4 border-b border-[#D4B77E]/40 pb-7">
-            <div>
-              <p className="text-[10px] uppercase tracking-[0.3em] text-[#A8752A] sm:text-xs">
-                The collection
-              </p>
-              <h1 className="mt-3 font-serif text-4xl text-[#3A1A1B] sm:text-6xl">
-                {category.name}
-              </h1>
-              {category.description && (
-                <p className="mt-4 max-w-2xl text-sm leading-7 text-[#806D60]">
-                  {category.description}
-                </p>
-              )}
-            </div>
+      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <Link
+          href="/categories"
+          className="text-xs font-semibold uppercase tracking-wider text-[#8A7879] transition hover:text-[#6B1D2F]"
+        >
+          ← All Collections
+        </Link>
 
-            <p className="text-xs uppercase tracking-wider text-[#806D60]">
-              {products.length} {products.length === 1 ? "piece" : "pieces"}
+        <div className="mt-6 flex flex-wrap items-end justify-between gap-4 border-b border-[#E8DFD5] pb-6">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#C5A059] sm:text-xs">
+              THE COLLECTION
             </p>
+            <h1 className="mt-1 font-serif text-3xl font-bold text-[#6B1D2F] sm:text-5xl">
+              {category.name}
+            </h1>
+            {category.description && (
+              <p className="mt-2 max-w-2xl text-xs sm:text-sm leading-6 text-[#8A7879]">
+                {category.description}
+              </p>
+            )}
           </div>
-        </section>
 
-        <section className="mx-auto max-w-[1440px] px-4 pb-16 sm:px-8 lg:px-12">
+          <p className="text-xs font-semibold text-[#8A7879]">
+            {products.length} {products.length === 1 ? "Piece" : "Pieces"} Available
+          </p>
+        </div>
+
+        <section className="py-8">
           {products.length === 0 ? (
-            <div className="border border-[#D4B77E]/30 bg-white px-6 py-16 text-center sm:py-20">
-              <h2 className="font-serif text-2xl text-[#3A1A1B] sm:text-3xl">
-                New pieces are coming soon
+            <div className="rounded-2xl border border-[#E8DFD5] bg-white px-6 py-20 text-center shadow-xs">
+              <h2 className="font-serif text-2xl font-bold text-[#2B1519]">
+                New pieces arriving soon
               </h2>
-              <p className="mx-auto mt-4 max-w-md text-sm leading-7 text-[#806D60]">
-                This collection does not have any products available yet.
-                Explore the rest of our jewellery in the meantime.
+              <p className="mx-auto mt-2 max-w-md text-xs leading-5 text-[#8A7879]">
+                We are curating exquisite new additions for this collection. Explore our complete jewellery catalogue in the meantime.
               </p>
               <Link
                 href="/products"
-                className="mt-7 inline-block bg-[#3A1A1B] px-7 py-3 text-xs uppercase tracking-[0.14em] text-[#FFF9F0] transition hover:bg-[#54292A]"
+                className="mt-6 inline-block rounded-md bg-[#6B1D2F] px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-xs transition hover:bg-[#541524]"
               >
-                Shop all jewellery
+                Browse All Jewellery
               </Link>
             </div>
           ) : (
-            <div className="grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-3 xl:grid-cols-3">
-              {products.map((product) => {
-                const imageUrl = product.images?.[0]?.url;
-
-                return (
-                  <article key={product.slug} className="group">
-                    <Link href={`/products/${product.slug}`} className="block">
-                      <div className="relative aspect-[4/5] overflow-hidden rounded-lg bg-[#F5EBDD]">
-                        {imageUrl ? (
-                          <Image
-                            src={imageUrl}
-                            alt={product.name}
-                            fill
-                            unoptimized
-                            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 33vw"
-                            className="object-cover transition duration-700 group-hover:scale-105"
-                          />
-                        ) : (
-                          <div className="flex h-full items-center justify-center text-sm text-[#806D60]">
-                            Image coming soon
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="pt-4">
-                        <h2 className="font-serif text-base text-[#3A1A1B] transition group-hover:text-[#A8752A] sm:text-lg">
-                          {product.name}
-                        </h2>
-                        <p className="mt-2 text-sm font-medium text-[#3A1A1B]">
-                          {formatPrice(product.price)}
-                        </p>
-                      </div>
-                    </Link>
-
-                    <p
-                      className={`mt-2 text-xs ${
-                        product.stock > 0 ? "text-[#806D60]" : "text-red-800"
-                      }`}
-                    >
-                      {product.stock > 0 ? "In stock" : "Out of stock"}
-                    </p>
-                  </article>
-                );
-              })}
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 sm:gap-6">
+              {products.map((product) => (
+                <FeaturedProductCard
+                  key={String(product._id)}
+                  product={{
+                    id: String(product._id),
+                    slug: product.slug,
+                    name: product.name,
+                    price: product.price,
+                    compareAtPrice: product.compareAtPrice,
+                    stock: product.stock,
+                    images: (product.images ?? [])
+                      .map((image) => image.url)
+                      .filter((url): url is string => Boolean(url)),
+                  }}
+                />
+              ))}
             </div>
           )}
 
-          <div className="mt-14 flex justify-center">
+          <div className="mt-12 text-center">
             <Link
               href="/products"
-              className="border border-[#3A1A1B] px-7 py-3 text-xs uppercase tracking-[0.14em] text-[#3A1A1B] transition hover:bg-[#3A1A1B] hover:text-[#FFF9F0]"
+              className="inline-block rounded-md border border-[#6B1D2F] px-8 py-3 text-xs font-bold uppercase tracking-[0.16em] text-[#6B1D2F] transition hover:bg-[#6B1D2F] hover:text-white"
             >
-              Shop all jewellery
+              Explore Full Collection →
             </Link>
           </div>
         </section>
       </main>
-    </>
+    </div>
   );
 }

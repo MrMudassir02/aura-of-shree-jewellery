@@ -1,76 +1,70 @@
 import Link from "next/link";
+import SiteNavigation from "@/components/navigation/SiteNavigation";
 
 export default function ShippingPage() {
   return (
-    <main className="min-h-screen bg-[#F5EBDD] text-[#3A1A1B]">
-      <section className="mx-auto max-w-4xl px-5 py-20 sm:py-28">
-        <Link href="/" className="text-sm text-[#806D60] hover:text-[#3A1A1B]">
+    <div className="min-h-screen bg-[#FAF7F2] text-[#2B1519]">
+      <SiteNavigation />
+
+      <main className="mx-auto max-w-4xl px-4 py-12 sm:px-6 sm:py-20 lg:px-8">
+        <Link href="/" className="text-xs font-semibold uppercase tracking-wider text-[#8A7879] hover:text-[#6B1D2F]">
           ← Back to home
         </Link>
-        <p className="mt-16 text-xs uppercase tracking-[0.3em] text-[#967344]">
-          Customer information
+        <p className="mt-8 text-[10px] font-bold uppercase tracking-[0.3em] text-[#C5A059]">
+          TRUST &amp; POLICIES
         </p>
-        <h1 className="mt-5 font-serif text-5xl sm:text-6xl">
-          Shipping & returns
+        <h1 className="mt-3 font-serif text-4xl font-bold text-[#6B1D2F] sm:text-5xl">
+          Shipping &amp; Returns
         </h1>
-        <p className="mt-6 text-sm leading-8 text-[#806D60]">
-          We aim to make every order experience clear and straightforward.
-          Please review the information below before completing your purchase.
+        <p className="mt-4 text-xs sm:text-sm leading-7 text-[#524043]">
+          We take immense pride in ensuring your fine jewellery arrives securely, discreetly, and fully insured every step of the journey.
         </p>
 
-        <div className="mt-12 space-y-10">
-          <section>
-            <h2 className="font-serif text-2xl">Order processing</h2>
-            <p className="mt-3 text-sm leading-8 text-[#806D60]">
-              Orders are subject to successful payment verification and product
-              availability. Please provide an accurate delivery address and
-              contact number at checkout.
+        <div className="mt-10 space-y-6">
+          <section className="rounded-xl border border-[#E8DFD5] bg-white p-6 shadow-xs">
+            <h2 className="font-serif text-lg font-bold text-[#2B1519]">🚚 Insured Express Shipping</h2>
+            <p className="mt-2 text-xs sm:text-sm leading-6 text-[#8A7879]">
+              Every order from Aura of Shree is packaged in tamper-evident security boxes and shipped via certified secure logistics partners (Blue Dart Apex / Sequel Logistics) with 100% transit insurance.
             </p>
           </section>
-          <section>
-            <h2 className="font-serif text-2xl">Delivery timelines</h2>
-            <p className="mt-3 text-sm leading-8 text-[#806D60]">
-              Delivery times can vary by destination, courier service, and order
-              processing. A specific delivery guarantee is not stated here.
-              Confirm the expected timeline before relying on delivery for a
-              particular occasion.
+
+          <section className="rounded-xl border border-[#E8DFD5] bg-white p-6 shadow-xs">
+            <h2 className="font-serif text-lg font-bold text-[#2B1519]">⏱️ Delivery Timelines</h2>
+            <p className="mt-2 text-xs sm:text-sm leading-6 text-[#8A7879]">
+              In-stock pieces dispatch within 24 to 48 hours. Metro deliveries typically arrive within 2-4 business days, while other locations take 4-6 business days. Tracking links are sent via SMS and email immediately upon dispatch.
             </p>
           </section>
-          <section>
-            <h2 className="font-serif text-2xl">Returns and exchanges</h2>
-            <p className="mt-3 text-sm leading-8 text-[#806D60]">
-              Return and exchange eligibility, including any applicable
-              conditions or deadlines, must be confirmed with the store before
-              sending an item back. Keep your order details and original
-              packaging until your enquiry is resolved.
+
+          <section className="rounded-xl border border-[#E8DFD5] bg-white p-6 shadow-xs">
+            <h2 className="font-serif text-lg font-bold text-[#2B1519]">🔄 15-Day Hassle-Free Returns &amp; Exchange</h2>
+            <p className="mt-2 text-xs sm:text-sm leading-6 text-[#8A7879]">
+              If for any reason you are not completely enchanted by your purchase, you may initiate a return or exchange within 15 days of delivery, provided the item is unworn with its original security tag and BIS certificate intact.
             </p>
           </section>
-          <section>
-            <h2 className="font-serif text-2xl">Order issues</h2>
-            <p className="mt-3 text-sm leading-8 text-[#806D60]">
-              If an item arrives damaged, is missing, or appears different from
-              what you ordered, retain the packaging and order confirmation
-              while arranging assistance through the store’s official support
-              channel.
+
+          <section className="rounded-xl border border-[#E8DFD5] bg-white p-6 shadow-xs">
+            <h2 className="font-serif text-lg font-bold text-[#2B1519]">💎 Lifetime Exchange &amp; Upgrade</h2>
+            <p className="mt-2 text-xs sm:text-sm leading-6 text-[#8A7879]">
+              All Aura of Shree gold and diamond jewellery qualifies for our Lifetime Exchange program, calculated against prevailing daily market gold rates.
             </p>
           </section>
         </div>
 
-        <div className="mt-14 border-t border-[#3A1A1B]/15 pt-8">
-          <p className="text-sm leading-7 text-[#806D60]">
-            This page describes general information, not a confirmed delivery or
-            refund guarantee. The store should publish its approved shipping
-            charges, delivery estimates, and return conditions before accepting
-            customer orders.
-          </p>
+        <div className="mt-10 border-t border-[#E8DFD5] pt-6 flex flex-wrap gap-4">
+          <Link
+            href="/contact"
+            className="rounded-md bg-[#6B1D2F] px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-xs transition hover:bg-[#541524]"
+          >
+            Contact Customer Support
+          </Link>
           <Link
             href="/products"
-            className="mt-6 inline-block bg-[#3A1A1B] px-6 py-3 text-sm text-[#FFF9F0] hover:bg-[#54292A]"
+            className="rounded-md border border-[#DFD4C7] bg-white px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-[#2B1519] transition hover:bg-[#FAF7F2]"
           >
-            Continue shopping
+            Explore Jewellery
           </Link>
         </div>
-      </section>
-    </main>
+      </main>
+    </div>
   );
 }

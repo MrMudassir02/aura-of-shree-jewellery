@@ -69,28 +69,32 @@ export default function QuickAddToBag({ product }: QuickAddToBagProps) {
       window.dispatchEvent(new Event("cart-updated"));
 
       setAdded(true);
-      setMessage("Added to your bag.");
+      setMessage("Added to bag!");
+      setTimeout(() => {
+        setAdded(false);
+        setMessage("");
+      }, 2500);
     } catch {
-      setMessage("Unable to update your bag. Please try again.");
+      setMessage("Unable to update bag.");
     }
   }
 
   return (
-    <div className="mt-2">
+    <div className="w-full">
       <button
         type="button"
         onClick={addToBag}
         disabled={outOfStock}
-        className="inline-flex min-h-10 min-w-28 cursor-pointer items-center justify-center rounded-md border border-[#3A1A1B] bg-[#3A1A1B] px-4 py-2 text-xs font-medium tracking-wide text-[#FFF9F0] transition-colors duration-200 hover:border-[#54292A] hover:bg-[#54292A] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#967344] disabled:cursor-not-allowed disabled:opacity-50 sm:min-h-9"
+        className="w-full cursor-pointer items-center justify-center rounded-lg border border-[#6B1D2F] bg-[#6B1D2F] py-2.5 px-3 text-xs font-bold tracking-wider uppercase text-white shadow-xs transition-all duration-200 hover:bg-[#541524] hover:border-[#541524] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
       >
-        {outOfStock ? "Out of Stock" : added ? "✓ Added to Bag" : "Add to Bag"}
+        {outOfStock ? "Out of Stock" : added ? "✓ Added to Bag" : "+ Quick Add"}
       </button>
 
       {message && (
         <p
           role="status"
           aria-live="polite"
-          className="mt-1 text-xs text-[#806D60]"
+          className="mt-1 text-center text-[11px] font-medium text-[#1A4D2E]"
         >
           {message}
         </p>

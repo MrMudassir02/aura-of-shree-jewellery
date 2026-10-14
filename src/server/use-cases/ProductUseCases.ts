@@ -4,7 +4,7 @@ export class ProductUseCases {
   async getProductById(id: string) { return productRepository.findById(id); }
   async getProductsByIds(ids: string[]) { return productRepository.findByIds(ids); }
   async getProductBySlug(slug: string) { return productRepository.findBySlug(slug); }
-  async getProducts(options?: { category?: string; featured?: boolean; limit?: number; skip?: number }) {
+  async getProducts(options?: { category?: string; featured?: boolean; limit?: number; skip?: number; search?: string }) {
     return productRepository.findMany(options);
   }
   async getAdminProducts(options: { search?: string; category?: string; status?: string; skip: number; limit: number }) {

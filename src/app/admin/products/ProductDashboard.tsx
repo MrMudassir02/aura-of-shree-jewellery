@@ -10,7 +10,6 @@ type ProductRow = {
   images?: Array<{ url: string }>; category?: { _id?: string; name?: string; slug?: string } | string;
 };
 type Category = { _id: string; name: string };
-const money = (n: number) => new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(n);
 const statusOf = (p: ProductRow) => p.status || (p.isActive ? "ACTIVE" : "DRAFT");
 
 export default function ProductDashboard({ categories }: { categories: Category[] }) {

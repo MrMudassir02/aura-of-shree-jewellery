@@ -1,6 +1,7 @@
 import { Types } from "mongoose";
 import { connectDB } from "@/lib/mongodb";
 import { Product, type ProductDocument } from "@/server/models/Product";
+import { Category } from "@/server/models/Category";
 
 type ProductImageInput = { url: string; publicId: string };
 type ProductCreateInput = Omit<Partial<ProductDocument>, "category" | "images"> & {
@@ -26,11 +27,38 @@ export class ProductRepository {
     return Product.findOne({ slug, isActive: true, status: { $in: ["ACTIVE", null] } }).lean<ProductDocument | null>();
   }
 
-  async findMany(options?: { category?: string; featured?: boolean; limit?: number; skip?: number }) {
+  async findMany(options?: { category?: string; featured?: boolean; limit?: number; skip?: number; search?: string }) {
     await connectDB();
     const filter: Record<string, unknown> = { isActive: true, status: { $in: ["ACTIVE", null] } };
-    if (options?.category) filter.category = options.category;
+
+    if (options?.category) {
+      const categoryParam = options.category.trim();
+      if (Types.ObjectId.isValid(categoryParam) && categoryParam.length === 24) {
+        filter.category = new Types.ObjectId(categoryParam);
+      } else {
+        const foundCategory = await Category.findOne({
+          $or: [
+            { slug: categoryParam.toLowerCase() },
+            { name: { $regex: new RegExp(`^${categoryParam}$`, "i") } },
+          ],
+        }).lean();
+
+        if (foundCategory) {
+          filter.category = foundCategory._id;
+        } else {
+          return [];
+        }
+      }
+    }
+
     if (options?.featured !== undefined) filter.isFeatured = options.featured;
+    if (options?.search?.trim()) {
+      const safe = options.search.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      filter.$or = [
+        { name: { $regex: safe, $options: "i" } },
+        { description: { $regex: safe, $options: "i" } },
+      ];
+    }
     return Product.find(filter).sort({ createdAt: -1 }).skip(options?.skip ?? 0).limit(options?.limit ?? 20).lean<ProductDocument[]>();
   }
 
@@ -39,7 +67,27 @@ export class ProductRepository {
   }) {
     await connectDB();
     const filter: Record<string, unknown> = {};
-    if (options.category) filter.category = options.category;
+
+    if (options.category) {
+      const categoryParam = options.category.trim();
+      if (Types.ObjectId.isValid(categoryParam) && categoryParam.length === 24) {
+        filter.category = new Types.ObjectId(categoryParam);
+      } else {
+        const foundCategory = await Category.findOne({
+          $or: [
+            { slug: categoryParam.toLowerCase() },
+            { name: { $regex: new RegExp(`^${categoryParam}$`, "i") } },
+          ],
+        }).lean();
+
+        if (foundCategory) {
+          filter.category = foundCategory._id;
+        } else {
+          return { products: [], total: 0 };
+        }
+      }
+    }
+
     if (options.status && options.status !== "ALL") filter.status = options.status;
     if (options.search?.trim()) {
       const safe = options.search.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");

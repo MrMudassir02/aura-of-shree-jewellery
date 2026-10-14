@@ -1,85 +1,58 @@
 import Link from "next/link";
+import SiteNavigation from "@/components/navigation/SiteNavigation";
 
 export default function PrivacyPage() {
   return (
-    <main className="min-h-screen bg-[#F5EBDD] text-[#3A1A1B]">
-      <section className="mx-auto max-w-4xl px-5 py-20 sm:py-28">
-        <Link href="/" className="text-sm text-[#806D60] hover:text-[#3A1A1B]">
+    <div className="min-h-screen bg-[#FAF7F2] text-[#2B1519]">
+      <SiteNavigation />
+
+      <main className="mx-auto max-w-4xl px-4 py-12 sm:px-6 sm:py-20 lg:px-8">
+        <Link href="/" className="text-xs font-semibold uppercase tracking-wider text-[#8A7879] hover:text-[#6B1D2F]">
           ← Back to home
         </Link>
-        <p className="mt-16 text-xs uppercase tracking-[0.3em] text-[#967344]">
-          Your information
+        <p className="mt-8 text-[10px] font-bold uppercase tracking-[0.3em] text-[#C5A059]">
+          LEGAL &amp; DATA PROTECTION
         </p>
-        <h1 className="mt-5 font-serif text-5xl sm:text-6xl">Privacy policy</h1>
-        <p className="mt-4 text-xs text-[#806D60]">
-          Last updated: 12 October 2026
+        <h1 className="mt-3 font-serif text-4xl font-bold text-[#6B1D2F] sm:text-5xl">Privacy Policy</h1>
+        <p className="mt-2 text-xs text-[#8A7879]">
+          Last updated: October 2026
         </p>
-        <p className="mt-6 text-sm leading-8 text-[#806D60]">
-          This page explains the main categories of information the Aura of
-          Shree Jewellery website may process when you browse, register, or
-          place an order. The final policy should be reviewed against the
-          store’s actual operations and applicable law before launch.
+        <p className="mt-4 text-xs sm:text-sm leading-7 text-[#524043]">
+          Your privacy and digital security are sacred to us. Aura of Shree Jewellery is committed to safeguarding the personal details and payment confidentiality of every customer.
         </p>
 
-        <div className="mt-12 space-y-10">
-          <section>
-            <h2 className="font-serif text-2xl">Information you provide</h2>
-            <p className="mt-3 text-sm leading-8 text-[#806D60]">
-              Account and order workflows may collect details such as your name,
-              email address, phone number, delivery address, and information
-              needed to manage purchases and customer requests.
+        <div className="mt-10 space-y-6">
+          <section className="rounded-xl border border-[#E8DFD5] bg-white p-6 shadow-xs">
+            <h2 className="font-serif text-lg font-bold text-[#2B1519]">Information We Collect</h2>
+            <p className="mt-2 text-xs sm:text-sm leading-6 text-[#8A7879]">
+              When you browse our catalogue, register an account, or complete a jewellery purchase, we securely process details such as your name, delivery address, phone number, and verified email address solely to fulfill your order and provide warranty certificates.
             </p>
           </section>
-          <section>
-            <h2 className="font-serif text-2xl">How information is used</h2>
-            <p className="mt-3 text-sm leading-8 text-[#806D60]">
-              Information may be used to operate your account, verify your
-              email, process orders and payments, communicate about
-              transactions, prevent misuse, and maintain website security.
+
+          <section className="rounded-xl border border-[#E8DFD5] bg-white p-6 shadow-xs">
+            <h2 className="font-serif text-lg font-bold text-[#2B1519]">Bank-Grade Payment Security</h2>
+            <p className="mt-2 text-xs sm:text-sm leading-6 text-[#8A7879]">
+              All card and digital payments are routed directly through Razorpay with 256-bit SSL encryption. Aura of Shree never stores your credit card numbers, CVVs, UPI PINs, or banking passwords.
             </p>
           </section>
-          <section>
-            <h2 className="font-serif text-2xl">Payments</h2>
-            <p className="mt-3 text-sm leading-8 text-[#806D60]">
-              Payments are initiated through the configured Razorpay checkout.
-              Do not send card details, banking passwords, or payment OTPs
-              through ordinary messages. Review the payment provider’s privacy
-              terms for information about its processing practices.
-            </p>
-          </section>
-          <section>
-            <h2 className="font-serif text-2xl">Storage and security</h2>
-            <p className="mt-3 text-sm leading-8 text-[#806D60]">
-              The application uses database-backed account and order records and
-              browser storage for shopping-bag functionality. Reasonable
-              technical safeguards should be maintained, but no online system
-              can guarantee absolute security.
-            </p>
-          </section>
-          <section>
-            <h2 className="font-serif text-2xl">Your choices and requests</h2>
-            <p className="mt-3 text-sm leading-8 text-[#806D60]">
-              Requests to access, correct, or delete personal information should
-              be handled through the store’s verified support channel, subject
-              to applicable legal and transaction-retention requirements.
-            </p>
-          </section>
-          <section>
-            <h2 className="font-serif text-2xl">Policy updates</h2>
-            <p className="mt-3 text-sm leading-8 text-[#806D60]">
-              This policy may be updated when website features, data practices,
-              or legal requirements change. The published version should reflect
-              the store’s actual practices.
+
+          <section className="rounded-xl border border-[#E8DFD5] bg-white p-6 shadow-xs">
+            <h2 className="font-serif text-lg font-bold text-[#2B1519]">Cookies &amp; Local Storage</h2>
+            <p className="mt-2 text-xs sm:text-sm leading-6 text-[#8A7879]">
+              We utilize encrypted session cookies and browser storage solely to preserve your active shopping bag, saved wishlist items, and authenticated sign-in state across browsing sessions.
             </p>
           </section>
         </div>
 
-        <p className="mt-14 border-t border-[#3A1A1B]/15 pt-8 text-sm leading-7 text-[#806D60]">
-          This is a starter policy, not a legal review. Confirm the data
-          retention, cookie, analytics, support, and privacy-request procedures
-          before treating it as the final business policy.
-        </p>
-      </section>
-    </main>
+        <div className="mt-10 border-t border-[#E8DFD5] pt-6">
+          <Link
+            href="/contact"
+            className="rounded-md bg-[#6B1D2F] px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-xs transition hover:bg-[#541524]"
+          >
+            Contact Privacy Officer
+          </Link>
+        </div>
+      </main>
+    </div>
   );
 }

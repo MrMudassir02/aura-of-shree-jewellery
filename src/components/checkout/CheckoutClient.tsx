@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import Script from "next/script";
 import { useEffect, useState } from "react";
 
@@ -62,6 +63,7 @@ declare global {
 }
 
 export default function CheckoutClient() {
+  const router = useRouter();
   const [cart, setCart] = useState<CartItem[]>([]);
   const [loaded, setLoaded] = useState(false);
 
@@ -79,18 +81,22 @@ export default function CheckoutClient() {
   const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(CART_KEY);
+    queueMicrotask(() => {
+      try {
+        const stored = localStorage.getItem(CART_KEY);
 
-      if (stored) {
-        const parsed: CartItem[] = JSON.parse(stored);
-        setCart(Array.isArray(parsed) ? parsed : []);
+        if (stored) {
+          const parsed: CartItem[] = JSON.parse(stored);
+          setCart(Array.isArray(parsed) ? parsed : []);
+        } else {
+          setCart([]);
+        }
+      } catch {
+        setCart([]);
+      } finally {
+        setLoaded(true);
       }
-    } catch {
-      setCart([]);
-    }
-
-    setLoaded(true);
+    });
   }, []);
 
   function updateField(field: keyof ShippingForm, value: string) {
@@ -230,7 +236,7 @@ export default function CheckoutClient() {
 
             localStorage.removeItem(CART_KEY);
 
-            window.location.href = `/order-success?orderId=${verifyData.orderId}`;
+            router.push(`/order-success?orderId=${verifyData.orderId}`);
           } catch {
             setError(
               "Payment was received, but we could not verify it. Please contact support.",

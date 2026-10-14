@@ -1,11 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { requireAdmin } from "@/server/auth/require-admin";
-import {
-  categoryUseCases,
-  CategoryUseCases,
-} from "@/server/use-cases/CategoryUseCases";
-import { success } from "zod";
+import { categoryUseCases } from "@/server/use-cases/CategoryUseCases";
 
 export async function GET() {
   try {

@@ -52,22 +52,25 @@ export default function CartClient() {
   const [storageError, setStorageError] = useState("");
 
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(CART_KEY);
+    queueMicrotask(() => {
+      try {
+        const stored = localStorage.getItem(CART_KEY);
 
-      if (stored) {
-        const parsed: unknown = JSON.parse(stored);
-
-        setCart(Array.isArray(parsed) ? parsed.filter(isCartItem) : []);
+        if (stored) {
+          const parsed: unknown = JSON.parse(stored);
+          setCart(Array.isArray(parsed) ? parsed.filter(isCartItem) : []);
+        } else {
+          setCart([]);
+        }
+      } catch {
+        setCart([]);
+        setStorageError(
+          "Your saved bag could not be read. Please add your items again.",
+        );
+      } finally {
+        setLoaded(true);
       }
-    } catch {
-      setCart([]);
-      setStorageError(
-        "Your saved bag could not be read. Please add your items again.",
-      );
-    } finally {
-      setLoaded(true);
-    }
+    });
   }, []);
 
   function saveCart(updatedCart: CartItem[]) {
@@ -84,26 +87,18 @@ export default function CartClient() {
   }
 
   function updateQuantity(productId: string, quantity: number) {
-    const item = cart.find((entry) => entry.productId === productId);
+    if (quantity < 1) return;
 
-    if (!item || item.stock < 1) return;
-
-    const safeQuantity = Math.min(
-      Math.max(1, Math.floor(quantity)),
-      item.stock,
+    const updated = cart.map((item) =>
+      item.productId === productId ? { ...item, quantity } : item,
     );
 
-    saveCart(
-      cart.map((entry) =>
-        entry.productId === productId
-          ? { ...entry, quantity: safeQuantity }
-          : entry,
-      ),
-    );
+    saveCart(updated);
   }
 
   function removeItem(productId: string) {
-    saveCart(cart.filter((item) => item.productId !== productId));
+    const updated = cart.filter((item) => item.productId !== productId);
+    saveCart(updated);
   }
 
   const subtotal = cart.reduce(
@@ -115,75 +110,77 @@ export default function CartClient() {
 
   if (!loaded) {
     return (
-      <main className="min-h-screen bg-[#F5EBDD] px-5 py-20 text-center">
-        <p className="text-sm text-[#806D60]">Loading your bag…</p>
+      <main className="min-h-screen bg-[#FAF7F2] text-[#2B1519]">
+        <div className="mx-auto flex min-h-[50vh] max-w-7xl items-center justify-center px-5">
+          <p className="text-sm text-[#8A7879]">Loading your shopping bag...</p>
+        </div>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-[#F5EBDD] text-[#2B2020]">
-      <header className="border-b border-[#3A1A1B]/10">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-5 lg:px-10">
+    <main className="min-h-screen bg-[#FAF7F2] text-[#2B1519]">
+      <header className="border-b border-[#E8DFD5] bg-white">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-5 sm:px-6 lg:px-8">
           <Link
             href="/"
-            className="text-xl font-semibold tracking-[0.12em] text-[#3A1A1B] sm:text-2xl"
+            className="text-xl font-serif font-bold tracking-[0.08em] text-[#6B1D2F] sm:text-2xl"
           >
-            AURA <span className="font-light">OF SHREE</span>
-            <span className="mt-1 block text-center text-[9px] tracking-[0.42em]">
-              JEWELLERY
+            AURA <span className="font-light text-[#2B1519]">OF SHREE</span>
+            <span className="mt-0.5 block text-center text-[8px] font-semibold tracking-[0.38em] text-[#C5A059]">
+              FINE JEWELLERY
             </span>
           </Link>
 
           <Link
             href="/products"
-            className="text-sm text-[#3A1A1B] underline underline-offset-4"
+            className="text-xs font-bold uppercase tracking-wider text-[#6B1D2F] hover:text-[#541524]"
           >
-            Continue Shopping
+            ← Continue Shopping
           </Link>
         </div>
       </header>
 
-      <section className="mx-auto max-w-7xl px-5 py-12 lg:px-10 lg:py-16">
-        <p className="text-xs uppercase tracking-[0.25em] text-[#967344]">
-          Your selection
+      <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+        <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#C5A059]">
+          YOUR SELECTION
         </p>
 
-        <h1 className="mt-4 font-serif text-4xl text-[#3A1A1B] sm:text-5xl">
-          Your Shopping Bag
+        <h1 className="mt-2 font-serif text-3xl font-bold text-[#2B1519] sm:text-4xl">
+          Shopping Bag
         </h1>
 
-        <p className="mt-3 text-sm text-[#806D60]">
-          {itemCount} {itemCount === 1 ? "item" : "items"} in your bag
+        <p className="mt-1 text-xs text-[#8A7879]">
+          {itemCount} {itemCount === 1 ? "piece" : "pieces"} in your bag
         </p>
 
         {storageError && (
           <p
             role="alert"
-            className="mt-5 border border-red-300 bg-white p-4 text-sm text-red-800"
+            className="mt-4 rounded-lg border border-red-200 bg-red-50 p-4 text-xs text-red-800"
           >
             {storageError}
           </p>
         )}
 
         {cart.length === 0 ? (
-          <div className="mt-10 bg-[#FFF9F0] px-6 py-20 text-center">
-            <h2 className="font-serif text-3xl text-[#3A1A1B]">
-              Your bag is waiting
+          <div className="mt-8 rounded-2xl border border-[#E8DFD5] bg-white px-6 py-16 text-center shadow-xs">
+            <h2 className="font-serif text-2xl font-bold text-[#2B1519]">
+              Your bag is currently empty
             </h2>
-            <p className="mt-4 text-sm text-[#806D60]">
-              Discover something beautiful and make it yours.
+            <p className="mx-auto mt-2 max-w-md text-xs leading-5 text-[#8A7879]">
+              Discover something beautiful from our collections and make it yours.
             </p>
             <Link
               href="/products"
-              className="mt-8 inline-block bg-[#3A1A1B] px-7 py-4 text-sm text-[#FFF9F0] transition hover:bg-[#54292A]"
+              className="mt-6 inline-block rounded-md bg-[#6B1D2F] px-7 py-3 text-xs font-bold uppercase tracking-wider text-white shadow-xs transition hover:bg-[#541524]"
             >
-              Explore Jewellery
+              Explore All Jewellery
             </Link>
           </div>
         ) : (
-          <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_360px]">
-            <div className="space-y-6">
+          <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_380px]">
+            <div className="space-y-4">
               {cart.map((item) => {
                 const unavailable = item.stock < 1;
                 const exceedsStock = item.quantity > item.stock;
@@ -191,11 +188,11 @@ export default function CartClient() {
                 return (
                   <article
                     key={item.productId}
-                    className="flex gap-4 border-b border-[#3A1A1B]/10 pb-6 sm:gap-6"
+                    className="flex gap-4 rounded-xl border border-[#E8DFD5] bg-white p-4 shadow-2xs sm:gap-6"
                   >
                     <Link
                       href={`/products/${item.slug}`}
-                      className="relative h-36 w-28 shrink-0 overflow-hidden bg-[#FFF9F0] sm:h-44 sm:w-36"
+                      className="relative h-28 w-24 shrink-0 overflow-hidden rounded-lg bg-[#FAF7F2] sm:h-36 sm:w-32"
                     >
                       {item.image ? (
                         <Image
@@ -207,45 +204,43 @@ export default function CartClient() {
                           className="object-cover"
                         />
                       ) : (
-                        <div className="flex h-full items-center justify-center text-xs text-[#806D60]">
+                        <div className="flex h-full items-center justify-center text-xs text-[#8A7879]">
                           No image
                         </div>
                       )}
                     </Link>
 
-                    <div className="flex min-w-0 flex-1 flex-col">
+                    <div className="flex min-w-0 flex-1 flex-col justify-between">
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <div>
                           <Link
                             href={`/products/${item.slug}`}
-                            className="font-serif text-xl text-[#3A1A1B] hover:underline"
+                            className="font-serif text-base font-semibold text-[#2B1519] hover:text-[#6B1D2F]"
                           >
                             {item.name}
                           </Link>
-                          <p className="mt-2 text-sm text-[#806D60]">
+                          <p className="mt-1 text-xs font-medium text-[#8A7879]">
                             {formatPrice(item.price)}
                           </p>
                           {unavailable && (
-                            <p className="mt-2 text-xs text-red-800">
-                              Currently out of stock. Remove this item to
-                              continue.
+                            <p className="mt-1 text-xs text-red-700">
+                              Currently out of stock.
                             </p>
                           )}
                           {!unavailable && exceedsStock && (
-                            <p className="mt-2 text-xs text-amber-800">
-                              Quantity exceeds the saved stock limit. Update it
-                              before checkout.
+                            <p className="mt-1 text-xs text-amber-700">
+                              Quantity exceeds stock limit.
                             </p>
                           )}
                         </div>
 
-                        <p className="text-sm font-medium text-[#3A1A1B]">
+                        <p className="text-sm font-bold text-[#6B1D2F]">
                           {formatPrice(item.price * item.quantity)}
                         </p>
                       </div>
 
-                      <div className="mt-auto flex flex-wrap items-center justify-between gap-4 pt-5">
-                        <div className="inline-flex items-center border border-[#3A1A1B]/20">
+                      <div className="mt-4 flex flex-wrap items-center justify-between gap-4 border-t border-[#F0E6DC] pt-3">
+                        <div className="inline-flex items-center rounded border border-[#DFD4C7]">
                           <button
                             type="button"
                             aria-label={`Decrease quantity of ${item.name}`}
@@ -253,11 +248,11 @@ export default function CartClient() {
                             onClick={() =>
                               updateQuantity(item.productId, item.quantity - 1)
                             }
-                            className="px-4 py-2 text-lg text-[#3A1A1B] disabled:opacity-30"
+                            className="px-3 py-1 text-sm text-[#2B1519] disabled:opacity-30"
                           >
                             −
                           </button>
-                          <span className="min-w-10 text-center text-sm">
+                          <span className="min-w-8 text-center text-xs font-semibold">
                             {item.quantity}
                           </span>
                           <button
@@ -269,7 +264,7 @@ export default function CartClient() {
                             onClick={() =>
                               updateQuantity(item.productId, item.quantity + 1)
                             }
-                            className="px-4 py-2 text-lg text-[#3A1A1B] disabled:opacity-30"
+                            className="px-3 py-1 text-sm text-[#2B1519] disabled:opacity-30"
                           >
                             +
                           </button>
@@ -278,7 +273,7 @@ export default function CartClient() {
                         <button
                           type="button"
                           onClick={() => removeItem(item.productId)}
-                          className="text-xs text-[#806D60] underline underline-offset-4 hover:text-[#3A1A1B]"
+                          className="text-xs text-[#8A7879] underline underline-offset-4 hover:text-red-700"
                         >
                           Remove
                         </button>
@@ -289,30 +284,28 @@ export default function CartClient() {
               })}
             </div>
 
-            <aside className="h-fit bg-[#FFF9F0] p-6 sm:p-8">
-              <h2 className="font-serif text-2xl text-[#3A1A1B]">
+            <aside className="h-fit rounded-xl border border-[#E8DFD5] bg-white p-6 shadow-xs">
+              <h2 className="font-serif text-xl font-bold text-[#2B1519]">
                 Order Summary
               </h2>
 
-              <div className="mt-6 flex justify-between gap-4 text-sm">
-                <span className="text-[#806D60]">Subtotal</span>
-                <span className="font-medium text-[#3A1A1B]">
+              <div className="mt-5 flex justify-between gap-4 text-xs">
+                <span className="text-[#8A7879]">Subtotal</span>
+                <span className="font-semibold text-[#2B1519]">
                   {formatPrice(subtotal)}
                 </span>
               </div>
 
-              <div className="mt-4 flex justify-between gap-4 text-sm">
-                <span className="text-[#806D60]">Shipping</span>
-                <span className="text-[#806D60]">Calculated at checkout</span>
+              <div className="mt-3 flex justify-between gap-4 text-xs">
+                <span className="text-[#8A7879]">Insured Shipping</span>
+                <span className="font-semibold text-[#1A4D2E]">FREE</span>
               </div>
 
-              <div className="my-6 h-px bg-[#3A1A1B]/10" />
+              <div className="my-5 h-px bg-[#E8DFD5]" />
 
-              <div className="flex justify-between gap-4">
-                <span className="font-medium text-[#3A1A1B]">
-                  Estimated Total
-                </span>
-                <span className="font-semibold text-[#3A1A1B]">
+              <div className="flex justify-between gap-4 text-sm font-bold">
+                <span className="text-[#2B1519]">Estimated Total</span>
+                <span className="text-[#6B1D2F]">
                   {formatPrice(subtotal)}
                 </span>
               </div>
@@ -322,21 +315,22 @@ export default function CartClient() {
                 aria-disabled={cart.some(
                   (item) => item.stock < 1 || item.quantity > item.stock,
                 )}
-                className={`mt-7 block px-6 py-4 text-center text-sm text-[#FFF9F0] transition ${
+                className={`mt-6 block rounded-md px-6 py-3.5 text-center text-xs font-bold uppercase tracking-wider text-white shadow-xs transition ${
                   cart.some(
                     (item) => item.stock < 1 || item.quantity > item.stock,
                   )
-                    ? "pointer-events-none bg-gray-500"
-                    : "bg-[#3A1A1B] hover:bg-[#54292A]"
+                    ? "pointer-events-none bg-gray-400"
+                    : "bg-[#6B1D2F] hover:bg-[#541524]"
                 }`}
               >
-                Review at Checkout →
+                Proceed to Checkout →
               </Link>
 
-              <p className="mt-4 text-center text-xs leading-5 text-[#806D60]">
-                Prices and stock are checked again by the server during
-                checkout.
-              </p>
+              <div className="mt-5 border-t border-[#F0E6DC] pt-4 text-[11px] text-[#8A7879] leading-5">
+                <p>✓ 100% BIS Hallmarked Purity Guaranteed</p>
+                <p>✓ Complimentary Transit Insurance Included</p>
+                <p>✓ 15-Day Easy Exchange Policy</p>
+              </div>
             </aside>
           </div>
         )}

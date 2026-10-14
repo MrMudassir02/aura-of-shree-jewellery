@@ -8,17 +8,52 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminProductsPage() {
   const auth = await requireAdmin();
-  if (!auth.authorized) redirect("/login");
+  if (!auth.authorized) {
+    redirect("/login");
+  }
+
   const categories = await categoryUseCases.getCategories();
-  const categoryOptions = categories.map((c: { _id: unknown; name: string }) => ({ _id: String(c._id), name: c.name }));
-  return <main className="min-h-screen bg-[#F5EBDD] px-4 py-7 text-[#3A1A1B] sm:px-8 sm:py-10">
-    <div className="mx-auto max-w-[1500px]">
-      <Link href="/admin" className="text-sm text-[#6B4A4A] hover:underline">← Admin dashboard</Link>
-      <header className="mb-7 mt-5 flex flex-wrap items-end justify-between gap-4">
-        <div><p className="text-xs uppercase tracking-[0.2em] text-[#806D60]">Aura of Shree Jewellery</p><h1 className="mt-2 font-serif text-3xl sm:text-4xl">Product catalogue</h1><p className="mt-2 text-sm text-[#806D60]">Manage catalogue, pricing, inventory and visibility.</p></div>
-        <Link href="/admin/products/new" className="rounded-lg bg-[#3A1A1B] px-5 py-3 text-sm font-semibold text-white hover:bg-[#542829]">+ Add product</Link>
+  const categoryOptions = categories.map((c: { _id: unknown; name: string }) => ({
+    _id: String(c._id),
+    name: c.name,
+  }));
+
+  return (
+    <div className="mx-auto max-w-[1440px] space-y-7 p-5 sm:p-8 lg:p-10">
+      {/* Breadcrumb & Navigation */}
+      <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs text-[#8A7879]">
+        <Link href="/admin" className="hover:text-[#6B1D2F] transition">
+          Atelier Dashboard
+        </Link>
+        <span>/</span>
+        <span className="font-medium text-[#2B1519]">Catalogue</span>
+      </nav>
+
+      {/* Page Header */}
+      <header className="flex flex-wrap items-end justify-between gap-4 border-b border-[#E8DFD5] pb-6">
+        <div>
+          <span className="text-[10px] uppercase tracking-[0.25em] text-[#C5A059] font-bold">
+            Atelier Inventory
+          </span>
+          <h1 className="mt-1 font-serif text-3xl sm:text-4xl text-[#2B1519]">
+            Product Catalogue
+          </h1>
+          <p className="mt-1.5 text-sm text-[#524043]">
+            Curate jewellery listings, adjust prices, monitor stock counts, and control visibility.
+          </p>
+        </div>
+
+        <Link
+          href="/admin/products/new"
+          className="inline-flex items-center gap-2 rounded-xl bg-[#6B1D2F] px-5 py-2.5 text-sm font-semibold text-white shadow-xs transition hover:bg-[#541524]"
+        >
+          <span>＋</span>
+          <span>Add New Product</span>
+        </Link>
       </header>
+
+      {/* Interactive Products Table & Controls */}
       <ProductDashboard categories={categoryOptions} />
     </div>
-  </main>;
+  );
 }

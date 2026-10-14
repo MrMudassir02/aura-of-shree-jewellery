@@ -5,6 +5,8 @@ import ProductForm from "@/components/admin/ProductForm";
 import { requireAdmin } from "@/server/auth/require-admin";
 import { productUseCases } from "@/server/use-cases/ProductUseCases";
 
+export const dynamic = "force-dynamic";
+
 type EditProductPageProps = {
   params: Promise<{
     id: string;
@@ -46,30 +48,36 @@ export default async function EditProductPage({
   };
 
   return (
-    <main className="min-h-screen bg-[#F5EBDD] px-6 py-10 text-[#3A1A1B]">
-      <div className="mx-auto max-w-4xl">
-        <Link
-          href="/admin/products"
-          className="mb-6 inline-flex text-sm font-medium text-[#6B4A4A] transition hover:text-[#3A1A1B]"
-        >
-          ← Back to Products
+    <div className="mx-auto max-w-5xl space-y-7 p-5 sm:p-8 lg:p-10">
+      {/* Breadcrumb Navigation */}
+      <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs text-[#8A7879]">
+        <Link href="/admin" className="hover:text-[#6B1D2F] transition">
+          Atelier Dashboard
         </Link>
+        <span>/</span>
+        <Link href="/admin/products" className="hover:text-[#6B1D2F] transition">
+          Catalogue
+        </Link>
+        <span>/</span>
+        <span className="font-medium text-[#2B1519]">Edit: {product.name}</span>
+      </nav>
 
-        <header className="mb-8">
-          <p className="mb-2 text-sm uppercase tracking-[0.2em]">
-            Aura of Shree Jewellery
-          </p>
+      {/* Header */}
+      <header className="border-b border-[#E8DFD5] pb-6">
+        <span className="text-[10px] uppercase tracking-[0.25em] text-[#C5A059] font-bold">
+          Jewellery Modification
+        </span>
+        <h1 className="mt-1 font-serif text-3xl sm:text-4xl text-[#2B1519]">
+          Edit Jewellery Listing
+        </h1>
+        <p className="mt-1.5 text-sm text-[#524043]">
+          Update details, adjust selling price, modify stock levels, or swap photography for{" "}
+          <span className="font-semibold text-[#2B1519]">{product.name}</span>.
+        </p>
+      </header>
 
-          <h1 className="text-3xl font-bold">Edit Product</h1>
-
-          <p className="mt-2 text-sm text-[#6B4A4A]">
-            Update the product information, pricing, inventory, and storefront
-            settings.
-          </p>
-        </header>
-
-        <ProductForm product={formProduct} />
-      </div>
-    </main>
+      {/* Form Card */}
+      <ProductForm product={formProduct} />
+    </div>
   );
 }

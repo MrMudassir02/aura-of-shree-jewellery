@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 
@@ -141,7 +142,7 @@ export default function ProductForm({ product }: ProductFormProps) {
         images: [
           {
             url: form.imageUrl.trim(),
-            publicId: form.publicId.trim(),
+            publicId: form.publicId.trim() || "manual-entry",
           },
         ],
 
@@ -196,19 +197,24 @@ export default function ProductForm({ product }: ProductFormProps) {
   }
 
   const inputClass =
-    "mt-2 w-full rounded-lg border border-[#DCCBB7] bg-white px-4 py-3 text-sm text-[#3A1A1B] outline-none transition focus:border-[#3A1A1B] focus:ring-2 focus:ring-[#3A1A1B]/10";
+    "mt-2 w-full rounded-xl border border-[#E8DFD5] bg-[#FAF7F2]/40 px-4 py-3 text-sm text-[#2B1519] placeholder-[#8A7879] outline-none transition focus:bg-white focus:border-[#6B1D2F] focus:ring-2 focus:ring-[#6B1D2F]/10";
 
-  const labelClass = "text-sm font-medium text-[#3A1A1B]";
+  const labelClass =
+    "block text-xs font-semibold uppercase tracking-wider text-[#524043]";
 
   return (
     <form
       onSubmit={handleSubmit}
-      className="space-y-8 rounded-xl bg-[#FFF9F0] p-6 shadow-sm sm:p-8"
+      className="space-y-9 rounded-2xl border border-[#E8DFD5] bg-white p-6 shadow-xs sm:p-10"
     >
-      <section className="space-y-5">
-        <h2 className="border-b border-[#E8D8C4] pb-3 text-lg font-semibold">
-          Basic Information
-        </h2>
+      {/* Basic Information */}
+      <section className="space-y-6">
+        <div className="flex items-center gap-2.5 border-b border-[#E8DFD5] pb-3.5">
+          <span className="text-[#C5A059] font-serif text-lg">01</span>
+          <h2 className="font-serif text-lg font-semibold text-[#2B1519]">
+            Basic Information
+          </h2>
+        </div>
 
         <div>
           <label className={labelClass} htmlFor="name">
@@ -221,7 +227,7 @@ export default function ProductForm({ product }: ProductFormProps) {
             value={form.name}
             onChange={handleChange}
             className={inputClass}
-            placeholder="e.g. Traditional Gold Necklace"
+            placeholder="e.g. Traditional Royal Kundan Necklace"
             minLength={2}
             maxLength={150}
             required
@@ -230,7 +236,7 @@ export default function ProductForm({ product }: ProductFormProps) {
 
         <div>
           <label className={labelClass} htmlFor="slug">
-            Product Slug *
+            URL Slug *
           </label>
 
           <input
@@ -242,19 +248,18 @@ export default function ProductForm({ product }: ProductFormProps) {
               handleChange(event);
             }}
             className={inputClass}
-            placeholder="traditional-gold-necklace"
+            placeholder="traditional-royal-kundan-necklace"
             required
           />
 
-          <p className="mt-2 text-xs text-[#806565]">
-            Used in the product URL. Use lowercase letters, numbers, and
-            hyphens.
+          <p className="mt-1.5 text-xs text-[#8A7879]">
+            The URL path for this jewellery item. Must consist of lowercase letters, numbers, and hyphens.
           </p>
         </div>
 
         <div>
           <label className={labelClass} htmlFor="description">
-            Description *
+            Artisanal Description *
           </label>
 
           <textarea
@@ -266,14 +271,14 @@ export default function ProductForm({ product }: ProductFormProps) {
             rows={5}
             minLength={10}
             maxLength={3000}
-            placeholder="Describe the jewelry, materials, design, and details..."
+            placeholder="Describe the craftsmanship, metal purity, gemstone setting, weight, and styling advice..."
             required
           />
         </div>
 
         <div>
           <label className={labelClass} htmlFor="category">
-            Category *
+            Jewellery Category *
           </label>
 
           <select
@@ -290,7 +295,7 @@ export default function ProductForm({ product }: ProductFormProps) {
                 ? "Loading categories..."
                 : categories.length === 0
                   ? "No categories available"
-                  : "Select a category"}
+                  : "Select a jewellery category"}
             </option>
 
             {categories.map((category) => (
@@ -302,12 +307,16 @@ export default function ProductForm({ product }: ProductFormProps) {
         </div>
       </section>
 
-      <section className="space-y-5">
-        <h2 className="border-b border-[#E8D8C4] pb-3 text-lg font-semibold">
-          Pricing & Inventory
-        </h2>
+      {/* Pricing & Stock Section */}
+      <section className="space-y-6">
+        <div className="flex items-center gap-2.5 border-b border-[#E8DFD5] pb-3.5">
+          <span className="text-[#C5A059] font-serif text-lg">02</span>
+          <h2 className="font-serif text-lg font-semibold text-[#2B1519]">
+            Pricing & Inventory
+          </h2>
+        </div>
 
-        <div className="grid gap-5 sm:grid-cols-2">
+        <div className="grid gap-6 sm:grid-cols-2">
           <div>
             <label className={labelClass} htmlFor="price">
               Selling Price (₹) *
@@ -322,14 +331,14 @@ export default function ProductForm({ product }: ProductFormProps) {
               value={form.price}
               onChange={handleChange}
               className={inputClass}
-              placeholder="1499"
+              placeholder="14999"
               required
             />
           </div>
 
           <div>
             <label className={labelClass} htmlFor="compareAtPrice">
-              Original Price (₹)
+              Original / MRP Price (₹)
             </label>
 
             <input
@@ -341,13 +350,16 @@ export default function ProductForm({ product }: ProductFormProps) {
               value={form.compareAtPrice}
               onChange={handleChange}
               className={inputClass}
-              placeholder="1999"
+              placeholder="19999"
             />
+            <p className="mt-1.5 text-xs text-[#8A7879]">
+              Optional. If higher than selling price, a discount badge will be displayed.
+            </p>
           </div>
 
           <div>
             <label className={labelClass} htmlFor="stock">
-              Available Stock *
+              Available Inventory Stock *
             </label>
 
             <input
@@ -359,14 +371,14 @@ export default function ProductForm({ product }: ProductFormProps) {
               value={form.stock}
               onChange={handleChange}
               className={inputClass}
-              placeholder="10"
+              placeholder="12"
               required
             />
           </div>
 
           <div>
             <label className={labelClass} htmlFor="sku">
-              SKU *
+              SKU (Stock Keeping Unit) *
             </label>
 
             <input
@@ -383,93 +395,128 @@ export default function ProductForm({ product }: ProductFormProps) {
         </div>
       </section>
 
-      <section className="space-y-5">
-        <h2 className="border-b border-[#E8D8C4] pb-3 text-lg font-semibold">
-          Product Image
-        </h2>
-
-        <div>
-          <label className={labelClass} htmlFor="imageUrl">
-            Image URL *
-          </label>
-
-          <input
-            id="imageUrl"
-            name="imageUrl"
-            type="url"
-            value={form.imageUrl}
-            onChange={handleChange}
-            className={inputClass}
-            placeholder="https://example.com/product-image.jpg"
-            required
-          />
+      {/* Photography Section */}
+      <section className="space-y-6">
+        <div className="flex items-center gap-2.5 border-b border-[#E8DFD5] pb-3.5">
+          <span className="text-[#C5A059] font-serif text-lg">03</span>
+          <h2 className="font-serif text-lg font-semibold text-[#2B1519]">
+            Photography & Media
+          </h2>
         </div>
 
-        <div>
-          <label className={labelClass} htmlFor="publicId">
-            Image Public ID *
-          </label>
+        <div className="grid gap-6 sm:grid-cols-3">
+          <div className="sm:col-span-2 space-y-4">
+            <div>
+              <label className={labelClass} htmlFor="imageUrl">
+                Primary Image URL *
+              </label>
 
-          <input
-            id="publicId"
-            name="publicId"
-            value={form.publicId}
-            onChange={handleChange}
-            className={inputClass}
-            placeholder="product-image-001"
-            required
-          />
+              <input
+                id="imageUrl"
+                name="imageUrl"
+                type="url"
+                value={form.imageUrl}
+                onChange={handleChange}
+                className={inputClass}
+                placeholder="https://images.unsplash.com/photo-... or Cloudinary URL"
+                required
+              />
+            </div>
 
-          <p className="mt-2 text-xs text-[#806565]">
-            Temporary field. Cloudinary integration will generate this
-            automatically.
-          </p>
+            <div>
+              <label className={labelClass} htmlFor="publicId">
+                Image Reference Identifier
+              </label>
+
+              <input
+                id="publicId"
+                name="publicId"
+                value={form.publicId}
+                onChange={handleChange}
+                className={inputClass}
+                placeholder="img-ref-001"
+              />
+
+              <p className="mt-1.5 text-xs text-[#8A7879]">
+                Media asset identifier for Cloudinary or storage tracking.
+              </p>
+            </div>
+          </div>
+
+          {/* Live Preview Card */}
+          <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-[#DFD4C7] bg-[#FAF7F2] p-4 text-center">
+            {form.imageUrl ? (
+              <div className="relative h-44 w-full overflow-hidden rounded-lg border border-[#E8DFD5]">
+                <Image
+                  src={form.imageUrl}
+                  alt="Product preview"
+                  fill
+                  unoptimized
+                  sizes="200px"
+                  className="object-cover"
+                />
+              </div>
+            ) : (
+              <div className="py-8 text-xs text-[#8A7879]">
+                <span className="block text-2xl text-[#C5A059] mb-1">◇</span>
+                <span>Image preview will render here</span>
+              </div>
+            )}
+          </div>
         </div>
       </section>
 
-      <section className="border-t border-[#E8D8C4] pt-6">
-        <label className="flex cursor-pointer items-center gap-3">
+      {/* Featured Setting */}
+      <section className="rounded-xl border border-[#E8DFD5] bg-[#FAF7F2]/50 p-5">
+        <label className="flex cursor-pointer items-center gap-3.5">
           <input
             type="checkbox"
             checked={form.isFeatured}
             onChange={handleFeaturedChange}
-            className="h-4 w-4 accent-[#3A1A1B]"
+            className="h-4 w-4 accent-[#6B1D2F] rounded"
           />
 
-          <span className="text-sm font-medium">
-            Feature this product on the storefront
-          </span>
+          <div>
+            <span className="text-sm font-semibold text-[#2B1519]">
+              Feature this piece on homepage bestsellers & collections
+            </span>
+            <p className="text-xs text-[#8A7879]">
+              Featured jewellery items receive prominent placement on the storefront.
+            </p>
+          </div>
         </label>
       </section>
 
+      {/* Error Message */}
       {error && (
         <div
           role="alert"
-          className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700"
+          className="rounded-xl border border-red-200 bg-red-50/80 p-4 text-sm text-red-800"
         >
           {error}
         </div>
       )}
 
-      <div className="flex flex-wrap gap-4 border-t border-[#E8D8C4] pt-6">
+      {/* Submit / Cancel Actions */}
+      <div className="flex flex-wrap gap-4 border-t border-[#E8DFD5] pt-6">
         <button
           type="submit"
           disabled={submitting || loadingCategories || categories.length === 0}
-          className="rounded-lg bg-[#3A1A1B] px-7 py-3 text-sm font-semibold text-white transition hover:bg-[#542829] disabled:cursor-not-allowed disabled:opacity-50"
+          className="rounded-xl bg-[#6B1D2F] px-8 py-3.5 text-sm font-semibold text-white shadow-xs transition hover:bg-[#541524] disabled:cursor-not-allowed disabled:opacity-50"
         >
           {submitting
             ? isEditMode
-              ? "Updating Product..."
-              : "Creating Product..."
+              ? "Saving Changes…"
+              : "Creating Listing…"
             : isEditMode
-              ? "Update Product"
-              : "Create Product"}
+              ? "Update Jewellery Listing"
+              : "Publish Jewellery Listing"}
         </button>
 
         <button
           type="button"
           onClick={() => router.push("/admin/products")}
-          className="rounded-lg border border-[#DCCBB7] px-7 py-3 text-sm font-semibold text-[#3A1A1B] transition hover:bg-[#F5EBDD]"
+          className="rounded-xl border border-[#DFD4C7] bg-[#FAF7F2] px-8 py-3.5 text-sm font-semibold text-[#2B1519] transition hover:bg-white hover:border-[#6B1D2F]"
         >
           Cancel
         </button>

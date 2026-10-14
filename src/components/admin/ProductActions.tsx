@@ -53,7 +53,7 @@ export default function ProductActions({
       <button
         type="button"
         onClick={() => router.push(`/admin/products/${productId}/edit`)}
-        className="rounded-md border border-[#DCCBB7] px-3 py-1.5 text-xs font-semibold text-[#3A1A1B] transition hover:bg-[#F5EBDD]"
+        className="rounded-lg border border-[#DFD4C7] bg-white px-3 py-1.5 text-xs font-semibold text-[#6B1D2F] transition hover:bg-[#FAF7F2] hover:border-[#6B1D2F]"
       >
         Edit
       </button>
@@ -62,9 +62,9 @@ export default function ProductActions({
         type="button"
         onClick={handleDelete}
         disabled={deleting}
-        className="rounded-md border border-red-200 px-3 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+        className="rounded-lg border border-red-200 bg-red-50/50 px-3 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50"
       >
-        {deleting ? "Deleting..." : "Delete"}
+        {deleting ? "Deleting…" : "Delete"}
       </button>
 
       {error && (

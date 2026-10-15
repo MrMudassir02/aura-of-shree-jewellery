@@ -156,9 +156,9 @@ export default async function Home() {
   return (
     <div className="min-h-screen bg-[#FAF7F2] text-[#2B1519]">
       {/* Top Announcement Bar */}
-      <div className="bg-[#6B1D2F] px-4 py-2 text-center text-[10px] font-semibold tracking-[0.2em] text-[#FAF7F2] sm:text-xs">
-        <span className="opacity-90">
-          ✨ COMPLIMENTARY INSURED SHIPPING ACROSS INDIA | 100% BIS HALLMARKED 22K GOLD &amp; CERTIFIED DIAMONDS
+      <div className="bg-[#6B1D2F] px-3 py-1.5 text-center text-[10px] sm:text-xs font-medium tracking-[0.16em] text-[#FAF7F2] overflow-hidden whitespace-nowrap">
+        <span className="opacity-95">
+          ✨ Complimentary Insured Delivery Across India · 100% BIS Hallmarked 22K Gold &amp; Certified Solitaires
         </span>
       </div>
 
@@ -168,8 +168,50 @@ export default async function Home() {
         user={session?.user}
       />
 
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-[#FAF7F2] via-[#FFFDFB] to-[#FAF7F2] py-10 sm:py-16 lg:py-20">
+      {/* Mobile Visual Hero Banner Card (Exact AI Sports Experience) */}
+      <div className="block md:hidden px-3 pt-3 pb-1">
+        <div className="relative aspect-[4/5] max-h-[500px] w-full overflow-hidden rounded-2xl shadow-md">
+          <Image
+            src="https://images.unsplash.com/photo-1617038220319-276d3cfab638?auto=format&fit=crop&w=1200&q=85"
+            alt="Signature Diamond and Gold Jewellery"
+            fill
+            priority
+            unoptimized
+            sizes="100vw"
+            className="object-cover object-center"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-black/10" />
+
+          <div className="absolute inset-x-0 bottom-0 p-5 flex flex-col items-start text-white">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/20 px-3 py-0.5 text-[9px] font-bold uppercase tracking-[0.2em] text-[#E8D09E]">
+              ✨ Festive &amp; Bridal 2024
+            </span>
+
+            <h1 className="mt-2.5 font-serif text-3xl font-normal leading-tight text-white drop-shadow-sm">
+              Own your
+              <br />
+              <span className="italic font-light text-[#E8D09E]">next forever.</span>
+            </h1>
+
+            <p className="mt-2 text-xs leading-relaxed text-white/80 max-w-xs">
+              Handcrafted in 100% BIS hallmarked 22K gold &amp; certified natural solitaires.
+            </p>
+
+            <div className="mt-4 w-full">
+              <Link
+                href="/products"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#C5A059] py-3 px-5 text-xs font-bold text-[#2B1519] shadow-md transition active:scale-95 hover:bg-[#D4AF67]"
+              >
+                <span>Shop jewellery collection</span>
+                <span>→</span>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Desktop Hero Section */}
+      <section className="hidden md:block relative overflow-hidden bg-gradient-to-b from-[#FAF7F2] via-[#FFFDFB] to-[#FAF7F2] py-10 sm:py-16 lg:py-20">
         <div className="mx-auto grid max-w-7xl items-center gap-12 px-4 sm:px-6 lg:grid-cols-12 lg:gap-8 lg:px-8">
           
           {/* Left Text Column */}

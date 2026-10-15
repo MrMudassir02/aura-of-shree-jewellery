@@ -6,6 +6,7 @@ import { signOut } from "next-auth/react";
 import { useState, useRef, useEffect } from "react";
 import CartBagLink from "@/components/cart/CartBagLink";
 import WishlistLink from "@/components/navigation/WishlistLink";
+import MobileCategoryPills from "@/components/navigation/MobileCategoryPills";
 
 const navigationCategories = [
   { href: "/categories/rings", label: "RINGS" },
@@ -64,6 +65,7 @@ export default function SiteNavigation({
   const [selectedCategory, setSelectedCategory] = useState("");
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const accountMenuRef = useRef<HTMLDivElement>(null);
 
   const initials = getUserInitials(user?.name, user?.email);
@@ -93,6 +95,8 @@ export default function SiteNavigation({
     if (selectedCategory) params.set("category", selectedCategory);
 
     const queryString = params.toString();
+    setMobileSearchOpen(false);
+    setMobileMenuOpen(false);
     router.push(queryString ? `/products?${queryString}` : "/products");
   }
 
@@ -100,20 +104,20 @@ export default function SiteNavigation({
     <header className="sticky top-0 z-50 w-full bg-white shadow-xs">
       {/* Top tier: Logo | Search with Category Dropdown | User Account, Wishlist, Cart */}
       <div className="border-b border-[#E8DFD5] bg-[#FFFFFF]">
-        <div className="mx-auto flex h-20 max-w-[1440px] items-center justify-between gap-3 px-4 sm:gap-6 sm:px-6 lg:px-8">
+        <div className="mx-auto flex h-16 sm:h-20 max-w-[1440px] items-center justify-between gap-2 px-3 sm:gap-6 sm:px-6 lg:px-8">
           
           {/* Left: Brand / Logo */}
           <Link
             href="/"
-            className="group flex shrink-0 items-center gap-3"
+            className="group flex shrink-0 items-center gap-2 sm:gap-3"
             aria-label="Aura of Shree Jewellery home"
           >
             {/* Elegant Circular Emblem */}
-            <div className="relative flex h-11 w-11 items-center justify-center rounded-full border-2 border-[#C5A059] bg-[#FAF7F2] shadow-xs transition-transform duration-300 group-hover:scale-105">
+            <div className="relative flex h-9 w-9 sm:h-11 sm:w-11 items-center justify-center rounded-full border-2 border-[#C5A059] bg-[#FAF7F2] shadow-xs transition-transform duration-300 group-hover:scale-105">
               <svg
                 viewBox="0 0 40 40"
                 fill="none"
-                className="h-7 w-7 text-[#6B1D2F]"
+                className="h-5 w-5 sm:h-7 sm:w-7 text-[#6B1D2F]"
                 xmlns="http://www.w3.org/2000/svg"
               >
                 <polygon
@@ -134,10 +138,10 @@ export default function SiteNavigation({
 
             {/* Brand Typography */}
             <div className="flex flex-col">
-              <span className="font-serif text-lg font-bold tracking-[0.06em] text-[#6B1D2F] sm:text-xl lg:text-2xl">
+              <span className="font-serif text-sm sm:text-lg lg:text-2xl font-bold tracking-[0.06em] text-[#6B1D2F]">
                 AURA <span className="font-light text-[#2B1519]">OF SHREE</span>
               </span>
-              <span className="text-[8px] font-semibold tracking-[0.38em] text-[#C5A059] sm:text-[9px]">
+              <span className="text-[7px] sm:text-[8px] font-semibold tracking-[0.32em] text-[#C5A059]">
                 FINE JEWELLERY
               </span>
             </div>
@@ -213,8 +217,8 @@ export default function SiteNavigation({
             </form>
           </div>
 
-          {/* Right: Account | Divider | Wishlist | Cart */}
-          <div className="flex shrink-0 items-center gap-2 sm:gap-4">
+          {/* Desktop Right Actions: Account | Divider | Wishlist | Cart */}
+          <div className="hidden md:flex shrink-0 items-center gap-3 lg:gap-4">
             
             {/* Account dropdown button */}
             <div className="relative" ref={accountMenuRef}>
@@ -285,6 +289,13 @@ export default function SiteNavigation({
                           className="flex items-center gap-2.5 rounded-md px-4 py-2 text-xs text-[#524043] transition hover:bg-[#FAF7F2] hover:text-[#6B1D2F]"
                         >
                           <span>Explore Collection</span>
+                        </Link>
+                        <Link
+                          href="/orders"
+                          onClick={() => setAccountMenuOpen(false)}
+                          className="flex items-center gap-2.5 rounded-md px-4 py-2 text-xs text-[#524043] transition hover:bg-[#FAF7F2] hover:text-[#6B1D2F]"
+                        >
+                          <span>My Orders &amp; Invoices</span>
                         </Link>
                         <Link
                           href="/wishlist"
@@ -358,13 +369,38 @@ export default function SiteNavigation({
 
             {/* Cart Link with Live Counter Badge */}
             <CartBagLink />
+          </div>
 
-            {/* Mobile Hamburger Button */}
+          {/* Mobile Right Actions: Search Icon | Cart with Badge | Clean Hamburger (No Overflow!) */}
+          <div className="flex md:hidden items-center gap-1.5 sm:gap-2 shrink-0">
+            {/* Search Trigger Button */}
+            <button
+              type="button"
+              aria-label="Search collection"
+              onClick={() => setMobileSearchOpen((prev) => !prev)}
+              className="flex h-9 w-9 items-center justify-center rounded-full text-[#2B1519] transition hover:bg-[#FAF7F2] active:scale-95"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                className="h-5 w-5"
+              >
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+            </button>
+
+            {/* Cart Link with Live Counter Badge */}
+            <CartBagLink />
+
+            {/* Mobile Hamburger Button - Comfortably padded, inside the box */}
             <button
               type="button"
               aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
               onClick={() => setMobileMenuOpen((open) => !open)}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-[#E2D6C8] text-[#2B1519] transition hover:bg-[#FAF7F2] md:hidden"
+              className="flex h-9 w-9 items-center justify-center rounded-lg border border-[#E2D6C8] bg-white text-[#2B1519] transition hover:bg-[#FAF7F2] active:scale-95 shadow-2xs"
             >
               {mobileMenuOpen ? (
                 <svg
@@ -391,47 +427,65 @@ export default function SiteNavigation({
           </div>
         </div>
 
-        {/* Mobile Search Bar (under header row on mobile screens) */}
-        <div className="border-t border-[#F0E6DC] bg-[#FFFDFB] px-4 py-2.5 md:hidden">
-          <form
-            action="/products"
-            method="GET"
-            onSubmit={handleSearchSubmit}
-            className="flex items-center rounded-full border border-[#DFD4C7] bg-[#FAF7F2] shadow-inner"
-          >
-            <input
-              type="text"
-              name="search"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search jewellery, rings, gold..."
-              className="w-full bg-transparent px-4 py-2 text-xs text-[#2B1519] placeholder:text-[#9C8B8E] focus:outline-none"
-            />
-            <button
-              type="submit"
-              aria-label="Search"
-              className="mr-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#6B1D2F] text-white"
+        {/* Expandable Mobile Search Bar (Smoothly slides open when search icon is clicked) */}
+        {mobileSearchOpen && (
+          <div className="border-t border-[#F0E6DC] bg-[#FAF7F2] px-3.5 py-2.5 md:hidden animate-in fade-in slide-in-from-top-2">
+            <form
+              action="/products"
+              method="GET"
+              onSubmit={handleSearchSubmit}
+              className="flex items-center rounded-full border border-[#DFD4C7] bg-white shadow-xs"
             >
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                className="h-3.5 w-3.5"
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="bg-transparent py-2 pl-3 pr-1 text-[11px] font-medium text-[#524043] focus:outline-none"
+                aria-label="Filter category"
               >
-                <circle cx="11" cy="11" r="8" />
-                <line x1="21" y1="21" x2="16.65" y2="16.65" />
-              </svg>
-            </button>
-          </form>
-        </div>
+                {categorySearchOptions.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+
+              <div className="h-5 w-px bg-[#E2D6C8]" aria-hidden="true" />
+
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search rings, necklaces, gold..."
+                className="w-full bg-transparent px-3 py-2 text-xs text-[#2B1519] placeholder:text-[#9C8B8E] focus:outline-none"
+                autoFocus
+              />
+
+              <button
+                type="submit"
+                aria-label="Submit search"
+                className="mr-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#6B1D2F] text-white shadow-xs"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  className="h-3.5 w-3.5"
+                >
+                  <circle cx="11" cy="11" r="8" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+              </button>
+            </form>
+          </div>
+        )}
       </div>
 
-      {/* Bottom tier: [ SHOP ] button + Category Navigation Links */}
-      <div className="border-b border-[#E8DFD5] bg-[#FFFDFB]">
+      {/* Bottom tier on Desktop: [ SHOP ] button + Category Navigation Links */}
+      <div className="hidden md:block border-b border-[#E8DFD5] bg-[#FFFDFB]">
         <div className="mx-auto flex max-w-[1440px] items-center gap-2 overflow-x-auto px-4 py-2 sm:px-6 lg:px-8">
           
-          {/* SHOP Standout Button (as in image) */}
+          {/* SHOP Standout Button */}
           <Link
             href="/products"
             className="shrink-0 rounded-sm bg-[#6B1D2F] px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-white shadow-xs transition duration-200 hover:bg-[#541524] active:scale-95"
@@ -448,7 +502,7 @@ export default function SiteNavigation({
               <Link
                 key={category.label}
                 href={category.href}
-                className="shrink-0 rounded-sm px-3 py-1.5 text-xs font-bold uppercase tracking-[0.12em] text-[#3D141E] transition-colors duration-200 hover:bg-[#F9EFF1] hover:text-[#6B1D2F]"
+                className="shrink-0 rounded-md px-3 py-1.5 text-xs font-bold uppercase tracking-[0.14em] text-[#2B1519] transition duration-150 hover:bg-[#FAF7F2] hover:text-[#6B1D2F]"
               >
                 {category.label}
               </Link>
@@ -457,53 +511,198 @@ export default function SiteNavigation({
         </div>
       </div>
 
-      {/* Mobile Drawer Menu */}
+      {/* Bottom tier on Mobile: Category Icon Bubbles Carousel (Matching AI Sports Reference!) */}
+      <MobileCategoryPills />
+
+      {/* Mobile Slide-Out Drawer Menu */}
       {mobileMenuOpen && (
-        <div className="border-b border-[#E8DFD5] bg-[#FFFFFF] px-5 py-4 md:hidden animate-in slide-in-from-top-2">
-          <div className="flex flex-col gap-1 pb-3 border-b border-[#F0E6DC]">
-            <Link
-              href="/products"
-              onClick={() => setMobileMenuOpen(false)}
-              className="rounded-md bg-[#6B1D2F] px-4 py-2.5 text-center text-xs font-bold uppercase tracking-wider text-white"
-            >
-              SHOP ALL JEWELLERY
-            </Link>
-          </div>
+        <>
+          <div
+            className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs md:hidden"
+            onClick={() => setMobileMenuOpen(false)}
+          />
 
-          <p className="mt-3 text-[10px] font-bold uppercase tracking-[0.2em] text-[#C5A059]">
-            COLLECTIONS &amp; CATEGORIES
-          </p>
+          <aside
+            className="fixed inset-y-0 right-0 z-50 flex w-full max-w-xs flex-col justify-between bg-white p-5 shadow-2xl md:hidden overflow-y-auto"
+          >
+            <div>
+              {/* Drawer Header */}
+              <div className="flex items-center justify-between border-b border-[#E8DFD5] pb-4">
+                <Link
+                  href="/"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-2"
+                >
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#6B1D2F] font-serif font-bold text-xs text-[#FAF7F2]">
+                    A
+                  </div>
+                  <div>
+                    <span className="font-serif text-sm font-bold tracking-wider block text-[#2B1519]">
+                      AURA OF SHREE
+                    </span>
+                    <span className="text-[8px] font-semibold uppercase tracking-[0.25em] text-[#C5A059]">
+                      Fine Jewellery
+                    </span>
+                  </div>
+                </Link>
 
-          <div className="mt-2 grid grid-cols-2 gap-1.5 pb-3 border-b border-[#F0E6DC]">
-            {navigationCategories.map((category) => (
-              <Link
-                key={category.label}
-                href={category.href}
-                onClick={() => setMobileMenuOpen(false)}
-                className="rounded-md px-3 py-2 text-xs font-semibold text-[#3D141E] transition hover:bg-[#F9EFF1] hover:text-[#6B1D2F]"
-              >
-                {category.label}
-              </Link>
-            ))}
-          </div>
+                <button
+                  type="button"
+                  aria-label="Close menu"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#E2D6C8] text-[#524043] hover:bg-[#FAF7F2]"
+                >
+                  ✕
+                </button>
+              </div>
 
-          <div className="pt-3 flex flex-col gap-2">
-            <Link
-              href="/about"
-              onClick={() => setMobileMenuOpen(false)}
-              className="text-xs font-medium text-[#524043] hover:text-[#6B1D2F]"
-            >
-              Our Heritage &amp; Craftsmanship
-            </Link>
-            <Link
-              href="/contact"
-              onClick={() => setMobileMenuOpen(false)}
-              className="text-xs font-medium text-[#524043] hover:text-[#6B1D2F]"
-            >
-              Customer Care &amp; Support
-            </Link>
-          </div>
-        </div>
+              {/* User Membership Status Chip */}
+              <div className="mt-4 rounded-xl border border-[#E8DFD5] bg-[#FAF7F2] p-3">
+                {isLoggedIn ? (
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#6B1D2F] text-xs font-semibold text-white">
+                      {initials}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-xs font-bold text-[#2B1519]">
+                        {user?.name || "Customer"}
+                      </p>
+                      <p className="text-[10px] text-[#C5A059] font-semibold uppercase tracking-wider">
+                        Aura Privilege Member
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between gap-2">
+                    <div>
+                      <p className="text-xs font-semibold text-[#2B1519]">
+                        Welcome Guest
+                      </p>
+                      <p className="text-[10px] text-[#8A7879]">
+                        Sign in for exclusive member privileges
+                      </p>
+                    </div>
+                    <Link
+                      href="/login"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="rounded-lg bg-[#6B1D2F] px-3 py-1.5 text-xs font-semibold text-white"
+                    >
+                      Sign In
+                    </Link>
+                  </div>
+                )}
+              </div>
+
+              {/* Jewellery Category Links */}
+              <div className="mt-5">
+                <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-[#C5A059]">
+                  Explore Jewellery
+                </p>
+                <div className="mt-2 space-y-1">
+                  {navigationCategories.map((cat) => (
+                    <Link
+                      key={cat.label}
+                      href={cat.href}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center justify-between rounded-lg px-3 py-2 text-xs font-semibold text-[#2B1519] transition hover:bg-[#FAF7F2] hover:text-[#6B1D2F]"
+                    >
+                      <span>{cat.label}</span>
+                      <span className="text-[#8A7879] text-xs">→</span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
+              {/* Boutique & Customer Care */}
+              <div className="mt-5 border-t border-[#F0E6DC] pt-4">
+                <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-[#C5A059]">
+                  Services &amp; Care
+                </p>
+                <div className="mt-2 space-y-1">
+                  <Link
+                    href="/orders"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center justify-between rounded-lg px-3 py-2 text-xs font-medium text-[#524043] transition hover:bg-[#FAF7F2]"
+                  >
+                    <span>My Orders &amp; Tracking</span>
+                    <span className="text-[#8A7879] text-xs">→</span>
+                  </Link>
+
+                  <Link
+                    href="/wishlist"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center justify-between rounded-lg px-3 py-2 text-xs font-medium text-[#524043] transition hover:bg-[#FAF7F2]"
+                  >
+                    <span>Saved Wishlist</span>
+                    <span className="text-[#8A7879] text-xs">→</span>
+                  </Link>
+
+                  <Link
+                    href="/about"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center justify-between rounded-lg px-3 py-2 text-xs font-medium text-[#524043] transition hover:bg-[#FAF7F2]"
+                  >
+                    <span>Our Atelier Story</span>
+                    <span className="text-[#8A7879] text-xs">→</span>
+                  </Link>
+
+                  <Link
+                    href="/contact"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center justify-between rounded-lg px-3 py-2 text-xs font-medium text-[#524043] transition hover:bg-[#FAF7F2]"
+                  >
+                    <span>Contact &amp; Boutiques</span>
+                    <span className="text-[#8A7879] text-xs">→</span>
+                  </Link>
+
+                  {user?.role === "admin" && (
+                    <Link
+                      href="/admin"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center justify-between rounded-lg bg-[#FAF7F2] px-3 py-2 text-xs font-bold text-[#6B1D2F] transition"
+                    >
+                      <span>★ Admin Atelier Dashboard</span>
+                      <span>→</span>
+                    </Link>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom Drawer Actions */}
+            <div className="border-t border-[#E8DFD5] pt-4">
+              {isLoggedIn ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    void signOut({ callbackUrl: "/" });
+                  }}
+                  className="flex w-full items-center justify-center rounded-xl border border-red-200 bg-red-50/50 py-2.5 text-xs font-semibold text-red-700 transition hover:bg-red-100"
+                >
+                  Sign Out
+                </button>
+              ) : (
+                <div className="grid grid-cols-2 gap-2">
+                  <Link
+                    href="/login"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center justify-center rounded-xl bg-[#6B1D2F] py-2.5 text-xs font-semibold text-white transition hover:bg-[#541524]"
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    href="/register"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center justify-center rounded-xl border border-[#DFD4C7] bg-[#FAF7F2] py-2.5 text-xs font-semibold text-[#2B1519] transition hover:bg-white"
+                  >
+                    Register
+                  </Link>
+                </div>
+              )}
+            </div>
+          </aside>
+        </>
       )}
     </header>
   );

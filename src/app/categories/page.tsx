@@ -81,7 +81,7 @@ export default async function CategoriesPage() {
                   {category.imageUrl ? (
                     <Image
                       src={category.imageUrl}
-                      alt={category.name}
+                      alt={category.name} 
                       fill
                       unoptimized
                       sizes="(max-width: 640px) 50vw, (max-width: 1280px) 33vw, 25vw"

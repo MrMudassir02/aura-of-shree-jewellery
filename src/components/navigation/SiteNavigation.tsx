@@ -284,6 +284,13 @@ export default function SiteNavigation({
 
                       <div className="py-1">
                         <Link
+                          href="/account"
+                          onClick={() => setAccountMenuOpen(false)}
+                          className="flex items-center gap-2.5 rounded-md px-4 py-2 text-xs font-semibold text-[#6B1D2F] transition hover:bg-[#FAF7F2]"
+                        >
+                          <span>My Account &amp; Profile</span>
+                        </Link>
+                        <Link
                           href="/products"
                           onClick={() => setAccountMenuOpen(false)}
                           className="flex items-center gap-2.5 rounded-md px-4 py-2 text-xs text-[#524043] transition hover:bg-[#FAF7F2] hover:text-[#6B1D2F]"
@@ -556,42 +563,10 @@ export default function SiteNavigation({
                 </button>
               </div>
 
-              {/* User Membership Status Chip */}
-              <div className="mt-4 rounded-xl border border-[#E8DFD5] bg-[#FAF7F2] p-3">
-                {isLoggedIn ? (
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#6B1D2F] text-xs font-semibold text-white">
-                      {initials}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-xs font-bold text-[#2B1519]">
-                        {user?.name || "Customer"}
-                      </p>
-                      <p className="text-[10px] text-[#C5A059] font-semibold uppercase tracking-wider">
-                        Aura Privilege Member
-                      </p>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-between gap-2">
-                    <div>
-                      <p className="text-xs font-semibold text-[#2B1519]">
-                        Welcome Guest
-                      </p>
-                      <p className="text-[10px] text-[#8A7879]">
-                        Sign in for exclusive member privileges
-                      </p>
-                    </div>
-                    <Link
-                      href="/login"
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="rounded-lg bg-[#6B1D2F] px-3 py-1.5 text-xs font-semibold text-white"
-                    >
-                      Sign In
-                    </Link>
-                  </div>
-                )}
-              </div>
+              {/* Subtitle */}
+              <p className="mt-3 text-[11px] font-medium text-[#8A7879]">
+                Handcrafted luxury jewellery collections &amp; boutique services.
+              </p>
 
               {/* Jewellery Category Links */}
               <div className="mt-5">
@@ -671,35 +646,13 @@ export default function SiteNavigation({
 
             {/* Bottom Drawer Actions */}
             <div className="border-t border-[#E8DFD5] pt-4">
-              {isLoggedIn ? (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    void signOut({ callbackUrl: "/" });
-                  }}
-                  className="flex w-full items-center justify-center rounded-xl border border-red-200 bg-red-50/50 py-2.5 text-xs font-semibold text-red-700 transition hover:bg-red-100"
-                >
-                  Sign Out
-                </button>
-              ) : (
-                <div className="grid grid-cols-2 gap-2">
-                  <Link
-                    href="/login"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center justify-center rounded-xl bg-[#6B1D2F] py-2.5 text-xs font-semibold text-white transition hover:bg-[#541524]"
-                  >
-                    Sign In
-                  </Link>
-                  <Link
-                    href="/register"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center justify-center rounded-xl border border-[#DFD4C7] bg-[#FAF7F2] py-2.5 text-xs font-semibold text-[#2B1519] transition hover:bg-white"
-                  >
-                    Register
-                  </Link>
-                </div>
-              )}
+              <Link
+                href="/products"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex w-full items-center justify-center rounded-xl bg-[#6B1D2F] py-3 text-xs font-bold uppercase tracking-wider text-white shadow-xs transition hover:bg-[#541524] active:scale-95"
+              >
+                Browse All Jewellery
+              </Link>
             </div>
           </aside>
         </>

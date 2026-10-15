@@ -5,15 +5,9 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { getWishlistCount } from "@/lib/wishlist";
 
-type SessionUser = {
-  name?: string | null;
-  email?: string | null;
-};
-
 export default function MobileBottomNav() {
   const pathname = usePathname();
   const [wishlistCount, setWishlistCount] = useState(0);
-  const [user, setUser] = useState<SessionUser | null>(null);
 
   useEffect(() => {
     queueMicrotask(() => {
@@ -27,16 +21,6 @@ export default function MobileBottomNav() {
     window.addEventListener("wishlist-updated", handleWishlistUpdate);
     window.addEventListener("storage", handleWishlistUpdate);
 
-    // Fetch lightweight session status
-    fetch("/api/auth/session")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data?.user) {
-          setUser(data.user);
-        }
-      })
-      .catch(() => {});
-
     return () => {
       window.removeEventListener("wishlist-updated", handleWishlistUpdate);
       window.removeEventListener("storage", handleWishlistUpdate);
@@ -48,18 +32,47 @@ export default function MobileBottomNav() {
     return null;
   }
 
+  const isTabActive = (href: string) => {
+    if (!pathname) return false;
+    if (href === "/") {
+      return pathname === "/";
+    }
+    if (href === "/account") {
+      return (
+        pathname === "/account" ||
+        pathname.startsWith("/account/") ||
+        pathname === "/login" ||
+        pathname === "/register"
+      );
+    }
+    if (href === "/products") {
+      return (
+        pathname === "/products" ||
+        pathname.startsWith("/products/") ||
+        pathname === "/categories" ||
+        pathname.startsWith("/categories/")
+      );
+    }
+    if (href === "/orders") {
+      return pathname === "/orders" || pathname.startsWith("/orders/");
+    }
+    if (href === "/wishlist") {
+      return pathname === "/wishlist";
+    }
+    return pathname.startsWith(href);
+  };
+
   const navItems = [
     {
       label: "Home",
       href: "/",
-      exact: true,
       icon: (active: boolean) => (
         <svg
           className="h-5 w-5"
           viewBox="0 0 24 24"
           fill={active ? "currentColor" : "none"}
           stroke="currentColor"
-          strokeWidth={active ? "1.8" : "1.8"}
+          strokeWidth="1.8"
         >
           <path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1h-5a1 1 0 01-1-1v-5h-4v5a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z" />
         </svg>
@@ -68,7 +81,6 @@ export default function MobileBottomNav() {
     {
       label: "Shop",
       href: "/products",
-      exact: false,
       icon: (active: boolean) => (
         <svg
           className="h-5 w-5"
@@ -84,7 +96,6 @@ export default function MobileBottomNav() {
     {
       label: "Orders",
       href: "/orders",
-      exact: false,
       icon: (active: boolean) => (
         <svg
           className="h-5 w-5"
@@ -100,7 +111,6 @@ export default function MobileBottomNav() {
     {
       label: "Wishlist",
       href: "/wishlist",
-      exact: true,
       badge: wishlistCount,
       icon: (active: boolean) => (
         <svg
@@ -115,9 +125,8 @@ export default function MobileBottomNav() {
       ),
     },
     {
-      label: user?.name ? "Account" : "Profile",
-      href: user ? "/orders" : "/login",
-      exact: false,
+      label: "Account",
+      href: "/account",
       icon: (active: boolean) => (
         <svg
           className="h-5 w-5"
@@ -134,12 +143,13 @@ export default function MobileBottomNav() {
   ];
 
   return (
-    <div className="fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-md border-t border-[#E8DFD5] md:hidden shadow-[0_-4px_20px_rgba(43,21,25,0.06)] pb-[max(env(safe-area-inset-bottom),8px)] pt-1.5">
+    <nav
+      aria-label="Mobile bottom navigation"
+      className="fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-md border-t border-[#E8DFD5] md:hidden shadow-[0_-4px_20px_rgba(43,21,25,0.06)] pb-[max(env(safe-area-inset-bottom),8px)] pt-1.5"
+    >
       <div className="flex items-center justify-around px-2">
         {navItems.map((item) => {
-          const isActive = item.exact
-            ? pathname === item.href
-            : pathname === item.href || (item.href !== "/" && pathname?.startsWith(item.href));
+          const isActive = isTabActive(item.href);
 
           return (
             <Link
@@ -177,7 +187,6 @@ export default function MobileBottomNav() {
           );
         })}
       </div>
-    </div>
+    </nav>
   );
 }
-

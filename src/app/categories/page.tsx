@@ -5,14 +5,17 @@ import { getServerSession } from "next-auth";
 import SiteNavigation from "@/components/navigation/SiteNavigation";
 import { authOptions } from "@/pages/api/auth/[...nextauth]";
 import { categoryUseCases } from "@/server/use-cases/CategoryUseCases";
+import { CORE_CATEGORIES } from "@/server/repositories/CategoryRepository";
 
 export const dynamic = "force-dynamic";
 
-const featuredCategories = [
-  "earrings",
+const categoryOrder = [
   "rings",
-  "pendants",
+  "necklaces",
+  "earrings",
   "bracelets",
+  "pendants",
+  "gold-coins",
   "chains",
 ];
 
@@ -22,22 +25,22 @@ export default async function CategoriesPage() {
     getServerSession(authOptions),
   ]);
 
-  const activeCategories = categories.filter((category) =>
-    featuredCategories.includes(category.slug.toLowerCase()),
+  // Map and merge database categories with core categories
+  const categoriesBySlug = new Map(
+    categories.map((c) => [c.slug.toLowerCase(), c]),
   );
 
-  const orderedCategories = [
-    ...featuredCategories
-      .map((slug) =>
-        activeCategories.find(
-          (category) => category.slug.toLowerCase() === slug,
-        ),
-      )
-      .filter((category) => category !== undefined),
-    ...activeCategories.filter(
-      (category) => !featuredCategories.includes(category.slug.toLowerCase()),
-    ),
-  ];
+  const displayCategories = categoryOrder.map((slug) => {
+    const fromDb = categoriesBySlug.get(slug);
+    const core = CORE_CATEGORIES[slug];
+
+    return {
+      name: fromDb?.name || core?.name || slug,
+      slug,
+      description: fromDb?.description || core?.description || "",
+      imageUrl: fromDb?.imageUrl || core?.imageUrl || "",
+    };
+  });
 
   return (
     <>
@@ -47,85 +50,77 @@ export default async function CategoriesPage() {
       />
 
       <main className="min-h-screen bg-[#FAF7F2] text-[#2B1519]">
-        <section className="mx-auto max-w-[1440px] px-4 pb-16 pt-12 sm:px-8 sm:pt-16 lg:px-12">
+        <section className="mx-auto max-w-[1440px] px-4 pb-16 pt-8 sm:px-8 sm:pt-14 lg:px-12">
+          {/* Header */}
           <div className="mb-10 text-center sm:mb-14">
-            <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.32em] text-[#C5A059] sm:text-xs">
-              BRILLIANT DESIGNS AND UNPARALLELED CRAFTSMANSHIP
-            </p>
+            <span className="mb-2 inline-block text-[10px] font-bold uppercase tracking-[0.3em] text-[#C5A059] sm:text-xs">
+              BRILLIANT CRAFTSMANSHIP &amp; TIMELESS HEIRLOOMS
+            </span>
 
             <h1 className="font-serif text-3xl font-bold text-[#6B1D2F] sm:text-5xl">
               Shop by Category
             </h1>
 
-            <div className="mx-auto mt-5 h-0.5 w-20 bg-[#C5A059]" />
+            <div className="mx-auto mt-4 h-0.5 w-16 bg-[#C5A059]" />
 
-            <p className="mx-auto mt-5 max-w-xl text-xs sm:text-sm leading-7 text-[#8A7879]">
-              Discover jewellery for every moment, from timeless essentials to
-              pieces made to be treasured.
+            <p className="mx-auto mt-3 max-w-xl text-xs sm:text-sm leading-6 text-[#524043]">
+              From everyday solitaire rings and 24K gold investment coins to lavish bridal necklaces, discover
+              pieces handcrafted for every milestone.
             </p>
           </div>
 
-          {orderedCategories.length === 0 ? (
-            <div className="rounded-2xl border border-[#E8DFD5] bg-white px-6 py-16 text-center shadow-xs">
-              <h2 className="font-serif text-2xl font-bold text-[#2B1519]">
-                Collections coming soon
-              </h2>
-              <p className="mt-3 text-xs sm:text-sm text-[#8A7879]">
-                Add launch categories in your admin panel to display them here.
-              </p>
+          {/* Categories Grid */}
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 sm:gap-6">
+            {displayCategories.map((category) => (
               <Link
-                href="/products"
-                className="mt-6 inline-block rounded-md bg-[#6B1D2F] px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-xs transition hover:bg-[#541524]"
+                key={category.slug}
+                href={`/categories/${category.slug}`}
+                className="group block rounded-2xl border border-[#E8DFD5] bg-white p-3 shadow-2xs transition-all duration-300 hover:-translate-y-1 hover:border-[#6B1D2F] hover:shadow-md"
               >
-                Shop all jewellery
-              </Link>
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5 sm:gap-6">
-              {orderedCategories.map((category) => (
-                <Link
-                  key={category.slug}
-                  href={`/categories/${category.slug}`}
-                  className="group block rounded-xl border border-[#E8DFD5] bg-white p-3 shadow-2xs transition hover:-translate-y-1 hover:border-[#6B1D2F] hover:shadow-md"
-                >
-                  <div className="relative aspect-[4/5] overflow-hidden rounded-lg bg-[#FAF7F2]">
-                    {category.imageUrl ? (
-                      <Image
-                        src={category.imageUrl}
-                        alt={category.name}
-                        fill
-                        unoptimized
-                        sizes="(max-width: 640px) 50vw, (max-width: 1280px) 33vw, 20vw"
-                        className="object-cover transition duration-700 group-hover:scale-105"
-                      />
-                    ) : (
-                      <div className="flex h-full items-center justify-center px-3 text-center font-serif text-base text-[#8A7879]">
-                        {category.name}
-                      </div>
-                    )}
-
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-60 transition group-hover:opacity-80" />
-                  </div>
-
-                  <div className="pt-3 text-center">
-                    <h2 className="font-serif text-sm font-bold text-[#2B1519] transition group-hover:text-[#6B1D2F] sm:text-base">
+                <div className="relative aspect-[4/5] overflow-hidden rounded-xl bg-[#FAF7F2]">
+                  {category.imageUrl ? (
+                    <Image
+                      src={category.imageUrl}
+                      alt={category.name}
+                      fill
+                      unoptimized
+                      sizes="(max-width: 640px) 50vw, (max-width: 1280px) 33vw, 25vw"
+                      className="object-cover transition duration-700 ease-out group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="flex h-full items-center justify-center px-3 text-center font-serif text-base text-[#8A7879]">
                       {category.name}
-                    </h2>
-                    <span className="mt-1 inline-block text-[11px] font-semibold text-[#C5A059] transition group-hover:underline">
-                      Explore collection →
+                    </div>
+                  )}
+
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent opacity-70 transition group-hover:opacity-85" />
+
+                  <div className="absolute inset-x-0 bottom-0 p-4 text-white">
+                    <p className="font-serif text-base font-bold sm:text-lg">
+                      {category.name}
+                    </p>
+                    <span className="mt-1 inline-flex items-center gap-1 text-[11px] font-semibold text-[#E8D09E] transition group-hover:translate-x-0.5">
+                      <span>Explore collection</span>
+                      <span>→</span>
                     </span>
                   </div>
-                </Link>
-              ))}
-            </div>
-          )}
+                </div>
+
+                <div className="p-2">
+                  <p className="line-clamp-2 text-xs text-[#8A7879] leading-5">
+                    {category.description}
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
 
           <div className="mt-14 text-center">
             <Link
               href="/products"
-              className="inline-block rounded-md border border-[#6B1D2F] px-8 py-3 text-xs font-bold uppercase tracking-[0.16em] text-[#6B1D2F] transition hover:bg-[#6B1D2F] hover:text-white"
+              className="inline-block rounded-xl border border-[#6B1D2F] bg-[#6B1D2F] px-8 py-3.5 text-xs font-bold uppercase tracking-[0.16em] text-white shadow-xs transition hover:bg-[#541524]"
             >
-              View all jewellery
+              Browse All Jewellery →
             </Link>
           </div>
         </section>

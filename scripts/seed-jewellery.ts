@@ -5,14 +5,24 @@ import { Product } from "../src/server/models/Product";
 
 const categories = [
   {
+    name: "Rings",
+    slug: "rings",
+    description: "Discover elegant rings for every style and occasion.",
+  },
+  {
+    name: "Necklaces",
+    slug: "necklaces",
+    description: "Explore chokers, royal bridal sets, and heritage necklaces.",
+  },
+  {
     name: "Earrings",
     slug: "earrings",
     description: "Explore earrings for everyday wear and special occasions.",
   },
   {
-    name: "Rings",
-    slug: "rings",
-    description: "Discover elegant rings for every style and occasion.",
+    name: "Bracelets",
+    slug: "bracelets",
+    description: "Discover bracelets that bring elegance to every look.",
   },
   {
     name: "Pendants",
@@ -20,9 +30,9 @@ const categories = [
     description: "Explore pendants designed to make every moment special.",
   },
   {
-    name: "Bracelets",
-    slug: "bracelets",
-    description: "Discover bracelets that bring elegance to every look.",
+    name: "Gold Coins",
+    slug: "gold-coins",
+    description: "Pure 24K 999 investment gold coins, hallmark certified.",
   },
   {
     name: "Chains",

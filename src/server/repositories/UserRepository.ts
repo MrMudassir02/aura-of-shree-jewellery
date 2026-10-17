@@ -11,6 +11,14 @@ export class UserRepository {
     >();
   }
 
+  async findByIdWithPassword(id: string) {
+    await connectDB();
+
+    return User.findById(id)
+      .select("+password")
+      .lean<(UserDocument & { _id: Types.ObjectId }) | null>();
+  }
+
   async findByEmail(email: string) {
     await connectDB();
 

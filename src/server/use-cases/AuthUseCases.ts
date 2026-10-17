@@ -229,6 +229,32 @@ export class AuthUseCases {
 
     return true;
   }
+
+  async changePassword(
+    userId: string,
+    currentPassword: string,
+    newPassword: string,
+  ) {
+    const user = await userRepository.findByIdWithPassword(userId);
+
+    if (!user || !user.isActive) {
+      return { success: false, message: "User account not found or inactive." };
+    }
+
+    const matches = await bcrypt.compare(currentPassword, user.password);
+
+    if (!matches) {
+      return { success: false, message: "Current password is incorrect." };
+    }
+
+    const passwordHash = await bcrypt.hash(newPassword, 12);
+
+    await userRepository.updateById(userId, {
+      password: passwordHash,
+    });
+
+    return { success: true, message: "Password updated successfully." };
+  }
 }
 
 export const authUseCases = new AuthUseCases();

@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 
 import SiteNavigation from "@/components/navigation/SiteNavigation";
 import SignOutButton from "@/components/account/SignOutButton";
+import ChangePasswordSection from "@/components/account/ChangePasswordSection";
 import { authOptions } from "@/pages/api/auth/[...nextauth]";
 import { orderRepository } from "@/server/repositories/OrderRepository";
 
@@ -285,6 +286,9 @@ export default async function AccountPage() {
                   </p>
                 </div>
               </div>
+
+              {/* Password & Security */}
+              <ChangePasswordSection />
 
               {/* Sign Out Action */}
               <div className="pt-4 border-t border-[#F0E6DC] flex flex-wrap items-center justify-between gap-4">
